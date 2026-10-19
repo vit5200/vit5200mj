@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; worker-src 'self'; manifest-src 'self'">
+<meta name="referrer" content="no-referrer">
+<title>麻將輸贏記錄</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="麻將記錄">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+:root{--font:"Noto Serif TC","Noto Serif CJK TC","Source Han Serif TC","Songti TC","Hiragino Mincho ProN","PMingLiU",serif;--serif:var(--font);
+--bg:#0a0a0c;--bg2:#131316;--panel:#141417;--panel2:#1d1d21;--line:rgba(214,170,76,.5);--line2:rgba(214,170,76,.2);
+--gold:#e3b64b;--goldhi:#fff0b3;--goldlo:#9a6a14;--red:#c1121f;--redhi:#e0262f;--redlo:#6d0910;
+--b1:#9a6a14;--b2:#fff0b3;--l1:#6d0910;--l2:#e0262f;--lnc:#ff5a5a;--ink:#f3eee2;--ink2:#d9d2c0;--mute:#9a9385;--dim:#6b665b;--win:#5fd99d;--loss:#ff6b6b;--sc:rgba(214,170,76,.06);--nav:#000;--glow:rgba(140,12,20,.35)}
+html,body{background:var(--bg)}
+body{-webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100%;color:var(--ink);
+background-color:var(--bg);background-image:radial-gradient(ellipse 120% 55% at 50% 0,var(--glow),transparent 70%),
+radial-gradient(circle at 50% 100%,transparent 0 38%,var(--sc) 39% 43%,transparent 44% 52%,var(--sc) 53% 57%,transparent 58% 66%,var(--sc) 67% 71%,transparent 72%),
+radial-gradient(circle at 50% 100%,transparent 0 38%,var(--sc) 39% 43%,transparent 44% 52%,var(--sc) 53% 57%,transparent 58% 66%,var(--sc) 67% 71%,transparent 72%);
+background-size:100% 100%,60px 30px,60px 30px;background-position:0 0,0 0,30px 15px}
+button{touch-action:manipulation}input,select{font-size:max(16px,1rem)}
+b,strong{font-family:var(--serif);font-weight:800}
+input[type=date]{-webkit-appearance:none;appearance:none;display:block;text-align:center;font-weight:600}
+input[type=date]::-webkit-date-and-time-value{text-align:center}
+[data-pid]{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+input,select{background:var(--bg2);color:var(--ink);border:1px solid var(--line)!important;border-radius:4px}
+input:focus{outline:none;border-color:var(--gold)!important;box-shadow:0 0 0 2px rgba(227,182,75,.3)}
+::placeholder{color:var(--dim)}
+/* 元件 */
+.panel{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:6px;box-shadow:0 0 0 1px rgba(0,0,0,.55),0 8px 22px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,235,170,.07)}
+.gold-text{background:linear-gradient(180deg,#fff6c8 0%,#f2c75a 42%,#b7791f 72%,#f6d77a 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;filter:drop-shadow(0 2px 0 rgba(0,0,0,.55))}
+.gbtn{background:linear-gradient(180deg,#1c1c20,#0c0c0e);color:var(--gold);border:1px solid var(--gold);border-radius:4px;font-family:var(--serif);font-weight:800}
+.banner-w{display:inline-block;filter:drop-shadow(0 3px 5px rgba(0,0,0,.55))}
+.banner{display:inline-block;padding:.32rem 2.1rem;color:var(--goldhi);font-family:var(--serif);font-weight:900;letter-spacing:.1em;text-shadow:0 1px 0 #000;
+background:linear-gradient(180deg,#d4222c,#7a0b12);clip-path:polygon(0 20%,2% 4%,9% 14%,31% 2%,60% 12%,92% 0,98% 16%,100% 62%,96% 100%,70% 90%,38% 100%,8% 92%,0 82%)}
+.rule{height:10px;margin:6px auto 0;max-width:260px;background:linear-gradient(90deg,transparent,var(--gold),transparent) center/100% 1px no-repeat;position:relative}
+.rule:after{content:"";position:absolute;left:50%;top:50%;width:8px;height:8px;background:var(--gold);transform:translate(-50%,-50%) rotate(45deg)}
+#hdr{background:linear-gradient(180deg,#000,#101013)!important;border-bottom:1px solid var(--gold);box-shadow:0 4px 18px rgba(0,0,0,.6)}
+#nav{background:var(--nav)!important;border-top:1px solid var(--gold);box-shadow:0 -6px 22px rgba(0,0,0,.45)!important}
+.nav-on{box-shadow:inset 0 3px 0 var(--redhi)}
+.debt-pill{font-size:0.6875rem;font-weight:700;padding:1px 7px;border-radius:3px;border:1px solid var(--loss);color:var(--loss);background:transparent;white-space:nowrap}
+.debt-pill.paid{border-color:var(--dim);color:var(--dim);text-decoration:line-through}
+.debt-on{background:linear-gradient(180deg,var(--redhi),var(--redlo));color:var(--goldhi);border:1px solid var(--gold)}
+.debt-off{background:transparent;color:var(--mute);border:1px dashed var(--line)}
+/* 排行卡 */
+.rk-card{position:relative;border:1px solid var(--line);background:#050506;border-radius:3px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.7),0 6px 16px rgba(0,0,0,.45)}
+.rk-head{display:flex;align-items:center;justify-content:center;gap:.5rem;padding:.35rem 0;background:linear-gradient(180deg,#34080b,#12090a);border-bottom:1px solid var(--line)}
+.rk-no{font-family:var(--serif);font-weight:900;font-size:1.625rem;line-height:1}
+.rk-ar{position:absolute;left:8px;top:6px;font-size:0.6875rem;line-height:1.1;text-align:center;font-weight:800}
+.rk-ar i{display:block;font-style:normal;font-size:0.4375rem;color:var(--mute);letter-spacing:.05em}
+.rk-lab{text-align:center;font-size:0.75rem;color:var(--mute);background:linear-gradient(180deg,#1b1b1f,#0d0d10);border-bottom:1px solid var(--line2);padding:2px 0}
+.rk-val{text-align:center;font-family:var(--serif);font-weight:900;font-size:1.375rem;padding:4px 0 6px;background:#000}
+.rk-ph{position:relative;aspect-ratio:3/4;background:#111;overflow:hidden}
+.rk-ph img{width:100%;height:100%;object-fit:cover;display:block}
+.rk-ph .ini{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-weight:900;font-size:4.75rem;color:rgba(255,255,255,.9);text-shadow:0 3px 0 rgba(0,0,0,.35)}
+.rk-nm{position:absolute;left:0;right:0;bottom:0;padding:18px 8px 6px;background:linear-gradient(180deg,transparent,rgba(0,0,0,.88));text-align:center}
+.rk-row{display:flex;align-items:center;gap:.6rem;padding:.6rem .75rem;background:#050506;border:1px solid var(--line);margin-bottom:6px;border-radius:3px}
+/* 以 CSS 重新著色既有 Tailwind 類別 */
+html .bg-white,html [class*="bg-white/"]{background-color:var(--panel)!important}
+html .bg-slate-50{background-color:var(--panel2)!important}
+html .bg-slate-100{background-color:var(--bg2)!important}
+html .border-slate-100{border-color:var(--line2)!important}html .border-slate-200{border-color:var(--line)!important}
+html .text-slate-800,html .text-slate-700{color:var(--ink)!important}html .text-slate-600{color:var(--ink2)!important}
+html .text-slate-500,html .text-slate-400{color:var(--mute)!important}html .text-slate-300{color:var(--dim)!important}
+html .bg-indigo-50{background-color:var(--panel2)!important}
+html .bg-indigo-100{background-color:rgba(193,18,31,.35)!important}
+html .text-indigo-700,html .text-indigo-600,html .text-indigo-500{color:var(--gold)!important}
+html .border-indigo-500{border-color:var(--gold)!important}
+html .bg-indigo-600{background:linear-gradient(180deg,var(--redhi),var(--redlo))!important;color:var(--goldhi)!important;border:1px solid var(--gold)!important}
+html .from-indigo-600{--tw-gradient-from:var(--redhi)!important;--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)!important;color:var(--goldhi)!important;border:1px solid var(--gold);font-family:var(--serif)}
+html .to-violet-600{--tw-gradient-to:var(--redlo)!important}
+html .from-emerald-400{--tw-gradient-from:var(--redhi)!important;--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)!important}
+html .to-teal-500{--tw-gradient-to:var(--redlo)!important}
+html .from-emerald-500{--tw-gradient-from:var(--b1)!important;--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)!important}
+html .to-emerald-300{--tw-gradient-to:var(--b2)!important}
+html .from-red-500{--tw-gradient-from:var(--l1)!important;--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)!important}
+html .to-red-300{--tw-gradient-to:var(--l2)!important}
+html .from-amber-50{--tw-gradient-from:rgba(227,182,75,.16)!important;--tw-gradient-to:transparent!important;--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)!important}
+html .bg-emerald-50,html .bg-red-50{background-color:var(--panel2)!important}
+html .bg-amber-50{background-color:rgba(227,182,75,.12)!important}
+html .text-amber-700,html .text-amber-600{color:var(--gold)!important}html .border-amber-200{border-color:var(--line)!important}
+html .text-emerald-600,html .text-emerald-700{color:var(--win)!important}
+html .text-red-500{color:var(--loss)!important}
+html .border-fuchsia-400{border-color:var(--gold)!important}
+html .ring-indigo-600,html .ring-indigo-500{--tw-ring-color:var(--gold)!important}
+html .from-amber-400{--tw-gradient-from:var(--goldlo)!important;--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)!important}
+html .to-orange-500{--tw-gradient-to:var(--gold)!important}
+html .shadow-md,html .shadow-lg,html .shadow-2xl,html .shadow{box-shadow:0 0 0 1px rgba(0,0,0,.6),0 6px 16px rgba(0,0,0,.4)!important}
+html .rounded-3xl{border-radius:6px!important}html .rounded-2xl{border-radius:5px!important}html .rounded-xl{border-radius:4px!important}
+html button.rounded-full{border-radius:4px!important}
+html .bg-black\/80{background:rgba(0,0,0,.88)}
+
+/* ===== v14：文字放大、標題列、紅底字、滑動切換、排行列 ===== */
+body{font-size:1.0625rem;min-height:100vh;min-height:100dvh;overscroll-behavior-y:none}
+html .text-xs{font-size:0.875rem!important;line-height:1.4!important}
+html .text-sm{font-size:1rem!important;line-height:1.45!important}
+html .text-base{font-size:1.0625rem!important}
+html .text-lg{font-size:1.25rem!important}
+html .text-xl{font-size:1.4375rem!important}
+html .text-2xl{font-size:1.75rem!important}
+html .text-\[11px\]{font-size:0.8125rem!important}
+html .text-\[10px\]{font-size:0.75rem!important}
+html .text-\[17px\]{font-size:1.1875rem!important}
+#hdr{height:auto!important;align-items:center!important;padding-top:calc(env(safe-area-inset-top) + 14px)!important;padding-bottom:10px!important;min-height:4rem}
+.gbtn{font-size:1rem}
+.banner{font-size:1.1875rem;padding:.38rem 2.2rem}
+html .bg-indigo-600,html .from-indigo-600{font-size:1.0625rem!important;font-weight:900!important}
+html .from-emerald-400{font-size:1.125rem!important;font-weight:800}
+.debt-on{font-size:0.9375rem!important}
+.debt-pill{font-size:0.8125rem}
+.rk2{display:flex;align-items:center;gap:.55rem;padding:.75rem .7rem;margin-bottom:8px;background:linear-gradient(180deg,#0d0d10,#050506);border:1px solid var(--line);border-radius:5px;box-shadow:0 0 0 1px rgba(0,0,0,.6),0 4px 12px rgba(0,0,0,.4)}
+.rk2.top{border-color:var(--gold);box-shadow:0 0 0 1px #000,0 0 16px rgba(227,182,75,.22)}
+.rk2.first{background:linear-gradient(90deg,rgba(140,12,20,.6),#050506 72%)}
+@keyframes swl{from{opacity:.25;transform:translateX(36px)}to{opacity:1;transform:none}}
+@keyframes swr{from{opacity:.25;transform:translateX(-36px)}to{opacity:1;transform:none}}
+.sw-l{animation:swl .22s ease-out}.sw-r{animation:swr .22s ease-out}
+@media (prefers-reduced-motion:reduce){.sw-l,.sw-r{animation:none}}
+
+/* ===== v16：第二種風格「荒野草原」＋動畫 ===== */
+html.wild{--bg:#d6e2cd;--bg2:#ece2c2;--panel:#f6ecd0;--panel2:#efe3c0;--line:rgba(96,70,28,.6);--line2:rgba(96,70,28,.26);
+--gold:#0e6a70;--goldhi:#0a4a50;--goldlo:#0f7f84;--red:#17848a;--redhi:#27a9a6;--redlo:#0b5a62;
+--ink:#3a2c15;--ink2:#53422a;--mute:#7a6843;--dim:#a39469;--win:#1b7f4b;--loss:#b4321f;--sc:rgba(0,0,0,0);--nav:#10333a;--glow:rgba(0,0,0,0);
+--b1:#139a94;--b2:#7fe6d8;--l1:#a8341f;--l2:#e98a62;--lnc:#14a39c}
+html.wild body{background-image:linear-gradient(180deg,#8fc7c8 0,#c9ddc9 26%,#e4e0c3 62%,#d9cfa8 100%);background-size:100% 100%;background-attachment:fixed;background-position:0 0}
+html.wild body::before{content:"";position:fixed;left:0;right:0;bottom:0;height:46vh;z-index:-1;pointer-events:none;
+background:radial-gradient(120% 100% at 18% 100%,rgba(70,120,100,.3) 0 38%,transparent 39%),radial-gradient(110% 90% at 88% 100%,rgba(60,105,110,.26) 0 40%,transparent 41%)}
+html.wild .panel{background:linear-gradient(180deg,#f9f0d6,#f0e4c0);border-radius:12px;box-shadow:inset 0 0 0 3px #f6ecd0,inset 0 0 0 4px rgba(96,70,28,.28),0 6px 14px rgba(50,60,40,.28)}
+html.wild .gold-text{background-image:linear-gradient(180deg,#1b8c91 0%,#0e5d63 60%,#0a3f45 100%);filter:drop-shadow(0 1px 0 rgba(255,255,255,.55))}
+html.wild #hdr .gold-text{background-image:linear-gradient(180deg,#fff6d8,#ecd899 65%,#c9a24a);filter:drop-shadow(0 0 8px rgba(95,245,227,.5))}
+html.wild #hdr{background:linear-gradient(180deg,#16444c,#0d2b32)!important;border-bottom:2px solid #c9a24a;box-shadow:0 4px 16px rgba(10,40,45,.45)}
+html.wild #nav{background:linear-gradient(180deg,#16444c,#0d2b32)!important;border-top:2px solid #c9a24a}
+html.wild #nav .text-slate-500{color:#9cc3be!important}
+html.wild #nav .text-indigo-700{color:#8ff7ea!important}
+html.wild .nav-on{box-shadow:inset 0 3px 0 #5ff5e3}
+html.wild .bg-indigo-100{background-color:rgba(95,245,227,.18)!important}
+html.wild .gbtn{background:linear-gradient(180deg,#1d5c64,#0e3a41);color:#f4e7bd;border:1px solid #c9a24a;border-radius:10px;box-shadow:0 0 10px rgba(95,245,227,.25),inset 0 0 0 1px rgba(255,255,255,.12)}
+html.wild .banner{color:#fff;background:linear-gradient(180deg,#1f9ba0,#0b4f57);clip-path:polygon(0 0,100% 0,95% 50%,100% 100%,0 100%,5% 50%);text-shadow:0 1px 2px rgba(0,0,0,.45);padding-left:2.5rem;padding-right:2.5rem}
+html.wild .bg-indigo-600,html.wild .from-indigo-600,html.wild .from-emerald-400,html.wild .debt-on{color:#fff!important;-webkit-text-fill-color:#fff;text-shadow:0 1px 1px rgba(0,0,0,.4);border:1px solid #c9a24a!important;box-shadow:0 0 12px rgba(95,245,227,.3)}
+html.wild input,html.wild select{border-radius:8px}
+html.wild input:focus{box-shadow:0 0 0 2px rgba(31,170,160,.35)}
+html.wild .rounded-3xl{border-radius:14px!important}html.wild .rounded-2xl{border-radius:11px!important}html.wild .rounded-xl{border-radius:9px!important}
+html.wild button.rounded-full{border-radius:999px!important}
+html.wild .shadow-md,html.wild .shadow-lg,html.wild .shadow-2xl,html.wild .shadow{box-shadow:0 4px 12px rgba(50,60,40,.3)!important}
+html.wild .rk-card{background:#f6ecd0;box-shadow:0 5px 12px rgba(50,60,40,.3)}
+html.wild .rk-head{background:linear-gradient(180deg,#1d5c64,#0e3a41)}
+html.wild .rk-lab{background:#ece0bb}html.wild .rk-val{background:#f6ecd0}html.wild .rk-ph{background:#cdbd96}html.wild .rk-row{background:#f6ecd0}
+html.wild .rk2{background:linear-gradient(180deg,#fbf3da,#efe3c0);border-radius:12px;box-shadow:inset 0 0 0 3px #f6ecd0,inset 0 0 0 4px rgba(96,70,28,.25),0 4px 10px rgba(50,60,40,.25)}
+html.wild .rk2.top{border-color:#c9a24a;box-shadow:inset 0 0 0 3px #f6ecd0,0 0 14px rgba(201,162,74,.55)}
+html.wild .rk2.first{background:linear-gradient(90deg,rgba(47,214,200,.3),#fbf3da 72%)}
+html.wild .debt-pill{border-radius:999px}
+
+/* 動畫（僅在換頁／換選項時播放一次） */
+@keyframes fu{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes gu{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+@keyframes gx{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes rkin{from{opacity:0;transform:translateX(-26px)}to{opacity:1;transform:none}}
+@keyframes shine{to{transform:translateX(130%)}}
+@keyframes navpop{0%{transform:scale(.65) translateY(5px)}60%{transform:scale(1.14)}100%{transform:none}}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes fi{from{opacity:0}}
+@keyframes dotin{from{opacity:0;transform:scale(0)}to{opacity:1;transform:scale(1)}}
+@keyframes mpop{from{opacity:0;transform:translateY(22px) scale(.985)}to{opacity:1;transform:none}}
+#v.anim>*{animation:fu .42s cubic-bezier(.2,.7,.2,1) both}
+#v.anim>*:nth-child(2){animation-delay:.05s}#v.anim>*:nth-child(3){animation-delay:.1s}#v.anim>*:nth-child(4){animation-delay:.15s}
+#v.anim>*:nth-child(5){animation-delay:.2s}#v.anim>*:nth-child(6){animation-delay:.25s}#v.anim>*:nth-child(n+7){animation-delay:.3s}
+#v.anim .rk2,#v.anim .wr-card{animation:rkin .46s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(min(var(--i,0),9)*65ms + 120ms)}
+#v.anim .wr-card{animation-name:fu}
+.rk2{position:relative;overflow:hidden}
+#v.anim .rk2.first::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(105deg,transparent 38%,rgba(255,240,190,.32) 50%,transparent 62%);transform:translateX(-130%);animation:shine 1.1s .9s ease-out 1 both}
+#v.anim .gr-up,#v.anim .gr-dn,#v.anim .gr-x{animation-duration:.75s;animation-timing-function:cubic-bezier(.2,.8,.2,1);animation-fill-mode:both;animation-delay:calc(var(--i,0)*70ms + 220ms)}
+#v.anim .gr-up{transform-origin:bottom;animation-name:gu}
+#v.anim .gr-dn{transform-origin:top;animation-name:gu}
+#v.anim .gr-x{transform-origin:left;animation-name:gx}
+.ln{fill:none;stroke:var(--lnc);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:0}
+.ln-area{fill:var(--lnc);opacity:.15}
+.ln-dot{fill:var(--lnc);transform-box:fill-box;transform-origin:center}
+#v.anim .ln{stroke-dashoffset:1;animation:draw 1.3s .3s cubic-bezier(.4,.1,.2,1) forwards}
+#v.anim .ln-area{animation:fi .8s 1.1s both}
+#v.anim .ln-dot{animation:dotin .3s cubic-bezier(.3,1.6,.5,1) both}
+#nav.anim .nav-on svg{animation:navpop .5s cubic-bezier(.3,1.4,.5,1)}
+.nav-on svg{filter:drop-shadow(0 0 5px rgba(224,38,47,.8))}
+html.wild .nav-on svg{filter:drop-shadow(0 0 6px #5ff5e3)}
+#modal.mnew>*{animation:mpop .26s cubic-bezier(.2,.8,.2,1)}
+html.tx,html.tx *{transition:font-size .35s,background-color .45s,color .45s,border-color .45s,fill .45s,stroke .45s,box-shadow .45s!important}
+@media (prefers-reduced-motion:reduce){#v.anim *,#v.anim>*,#nav.anim *,#modal.mnew>*,.rk2::after{animation:none!important}.ln{stroke-dashoffset:0!important}html.tx,html.tx *{transition:none!important}}
+
+/* ===== v17：字體大小（以 rem 同步縮放）與機型自適應 ===== */
+html{font-size:calc(clamp(14px,4.1vw,18px)*var(--fs,1));-webkit-text-size-adjust:100%;text-size-adjust:100%}
+html .text-\[15px\]{font-size:.9375rem!important}
+html .text-\[24px\]{font-size:1.5rem!important}
+html .text-\[30px\]{font-size:1.875rem!important}
+html .text-\[34px\]{font-size:2.125rem!important}
+html .h-\[78px\]{height:4.875rem!important}
+html .w-\[100px\]{width:6.25rem!important}
+#nav svg{width:1.875rem;height:1.875rem}
+@media (max-width:359px){#hdr .gbtn{padding-left:.5rem;padding-right:.5rem}}
+@media (min-width:768px){#v{max-width:34rem}}
+
+/* ===== v18：統一字體、荒野草原、排行榜動畫 ===== */
+body{font-family:var(--font);font-weight:600;font-variant-numeric:tabular-nums}
+input,select,button,textarea{font-family:inherit}
+html .font-normal,html .font-medium{font-weight:600!important}
+html .font-semibold{font-weight:700!important}
+html{--mute:#aaa392;--dim:#7f7a6d}
+html.wild{--font:system-ui,-apple-system,"PingFang TC","Noto Sans TC","Noto Sans CJK TC","Microsoft JhengHei","Hiragino Sans",sans-serif;
+--panel:#f8f1d8;--panel2:#f0e8c6;--ink:#2b2210;--ink2:#46391f;--mute:#66552f;--dim:#96865c;
+--gold:#0f6a5c;--goldhi:#0a4a40;--goldlo:#12806d;--red:#1b8a6e;--redhi:#34b58f;--redlo:#0d6a55;--b1:#16a085;--b2:#8af0cf;--lnc:#16a085}
+html.wild body{background-image:linear-gradient(180deg,#8fd0e8 0,#cde9c0 30%,#a9d58a 68%,#86bd62 100%)}
+html.wild body::before{background:radial-gradient(120% 100% at 18% 100%,rgba(50,130,70,.42) 0 38%,transparent 39%),radial-gradient(110% 90% at 88% 100%,rgba(35,105,75,.34) 0 40%,transparent 41%)}
+html.wild #hdr,html.wild #nav{background:linear-gradient(180deg,#1c5a3f,#0f3a2a)!important;border-color:#d1a93f}
+html.wild #nav .text-slate-500{color:#b4dcc0!important}
+html.wild #nav .text-indigo-700{color:#b6ffd6!important}
+html.wild .nav-on{box-shadow:inset 0 3px 0 #8dffc0}
+html.wild .nav-on svg{filter:drop-shadow(0 0 6px #8dffc0)}
+html.wild .bg-indigo-100{background-color:rgba(150,255,200,.22)!important}
+html.wild .gbtn{background:linear-gradient(180deg,#226b4a,#10412f);box-shadow:0 0 10px rgba(141,255,192,.3),inset 0 0 0 1px rgba(255,255,255,.12)}
+html.wild .banner{background:linear-gradient(180deg,#2fa07a,#0d5a45)}
+html.wild .rk-head{background:linear-gradient(180deg,#226b4a,#10412f)}
+html.wild #hdr .gold-text{filter:drop-shadow(0 0 8px rgba(141,255,192,.55))}
+html.wild .rk2.first{background:linear-gradient(90deg,rgba(80,200,120,.3),#fbf3da 72%)}
+html.wild .bg-indigo-600,html.wild .from-indigo-600,html.wild .from-emerald-400,html.wild .debt-on{box-shadow:0 0 12px rgba(141,255,192,.35)}
+/* 排行榜名次欄 */
+.rkc{width:3.1rem;flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:.15rem;line-height:1}
+.rk2.first .rkc{width:4rem}
+.rk-ic{display:block;height:2rem}
+.rk-ic svg{width:2rem;height:2rem;display:block}
+.rk2.first .rk-ic{height:3rem}.rk2.first .rk-ic svg{width:3rem;height:3rem}
+.rk-n{font-family:var(--font);font-weight:900;font-size:1.5rem;color:var(--gold)}
+.rk2.first .rk-n{font-size:2.3rem}
+.rk2.first{padding-top:1.05rem;padding-bottom:1.05rem}
+.mv{font-weight:900;font-size:1.05rem;line-height:1}
+/* 排行榜前三名動畫（慢速、清楚） */
+@keyframes shine{0%{transform:translateX(-170%) skewX(-18deg)}50%,100%{transform:translateX(340%) skewX(-18deg)}}
+@keyframes glow{0%,100%{box-shadow:var(--ins,0 0 0 0 transparent),0 0 0 1px rgba(0,0,0,.4),0 0 10px rgba(var(--gl),.3)}50%{box-shadow:var(--ins,0 0 0 0 transparent),0 0 0 1px rgba(0,0,0,.4),0 0 36px 5px rgba(var(--gl),.9)}}
+@keyframes tw{0%,100%{opacity:.12;transform:scale(.55) rotate(0)}50%{opacity:1;transform:scale(1.4) rotate(35deg)}}
+@keyframes bob{0%,100%{transform:translateY(0) scale(1);filter:drop-shadow(0 0 2px rgba(var(--gl),.4))}50%{transform:translateY(-3px) scale(1.14);filter:drop-shadow(0 0 10px rgba(var(--gl),1))}}
+.rk2.g1{--shc:rgba(255,232,90,.95);--gl:255,208,40;--tw:#ffd84a}
+.rk2.g2{--shc:rgba(255,196,80,.92);--gl:245,172,40;--tw:#ffc34d}
+.rk2.g3{--shc:rgba(240,246,252,.95);--gl:196,210,228;--tw:#e8f0f8}
+html.wild .rk2.g1{--shc:rgba(255,214,60,.95);--gl:240,190,20}
+html.wild .rk2.g2{--shc:rgba(255,176,40,.9);--gl:235,150,20}
+html.wild .rk2.g3{--shc:rgba(120,160,200,.7);--gl:110,150,195}
+html.wild .rk2.top{--ins:inset 0 0 0 3px #f6ecd0}
+.rk2.top{z-index:2;animation:glow 3.8s ease-in-out infinite;animation-delay:calc(var(--i,0)*.5s)}
+.rk2.top::after{content:"";position:absolute;top:-25%;bottom:-25%;left:0;width:55%;pointer-events:none;background:linear-gradient(105deg,transparent 0,var(--shc) 50%,transparent 100%);transform:translateX(-170%) skewX(-18deg);animation:shine 5.6s ease-in-out infinite;animation-delay:calc(var(--i,0)*.9s + .8s)}
+html.wild .rk2.top::after{width:62%}
+.rk2.top::before{content:"✦";position:absolute;right:.55rem;top:.1rem;font-size:1.35rem;line-height:1;color:var(--tw,#ffe28a);text-shadow:0 0 8px rgba(var(--gl),.9);pointer-events:none;z-index:1;animation:tw 3s ease-in-out infinite;animation-delay:calc(var(--i,0)*.5s)}
+.rk2.top .rk-ic{animation:bob 3.4s ease-in-out infinite;animation-delay:calc(var(--i,0)*.4s)}
+#v.anim .rk2.top{animation:rkin .46s cubic-bezier(.2,.8,.2,1) both,glow 3.8s ease-in-out infinite;animation-delay:calc(min(var(--i,0),9)*65ms + 120ms),calc(.8s + var(--i,0)*.5s)}
+@media (prefers-reduced-motion:reduce){.rk2.top,.rk2.top::before,.rk2.top::after,.rk2.top .rk-ic{animation:none!important}}
+
+/* ===== v19：掃光更慢更明顯、金銀銅皇冠 ===== */
+@keyframes shine{0%{transform:translateX(-130%) skewX(-18deg)}72%,100%{transform:translateX(300%) skewX(-18deg)}}
+.rk2.g1{--shc:rgba(255,226,70,.95);--gl:255,208,40;--tw:#ffd84a}
+.rk2.g2{--shc:rgba(236,244,255,.95);--gl:205,220,240;--tw:#eef4fb}
+.rk2.g3{--shc:rgba(255,160,90,.92);--gl:232,140,80;--tw:#ffb98a}
+html.wild .rk2.g1{--shc:rgba(255,184,0,1);--gl:240,180,0}
+html.wild .rk2.g2{--shc:rgba(105,145,190,.95);--gl:110,148,190}
+html.wild .rk2.g3{--shc:rgba(214,108,40,.95);--gl:215,115,50}
+html.wild .rk2.g1{background:linear-gradient(90deg,rgba(255,205,60,.6),#fbf3da 78%)}
+html.wild .rk2.g2{background:linear-gradient(90deg,rgba(150,178,210,.45),#fbf3da 78%)}
+html.wild .rk2.g3{background:linear-gradient(90deg,rgba(220,135,75,.4),#fbf3da 78%)}
+.rk2.top::after{width:70%;background:linear-gradient(105deg,transparent 0,var(--shc) 50%,transparent 100%);mix-blend-mode:screen;animation:shine 9s ease-in-out infinite;animation-delay:calc(var(--i,0)*1.3s + .6s)}
+html.wild .rk2.top::after{width:80%;mix-blend-mode:multiply}
+
+/* ===== v20：移除掃光、粗減號、草原星點 ===== */
+.rk2.top::after,html.wild .rk2.top::after{content:none!important;animation:none!important;display:none!important}
+.mv.same{display:inline-block;width:1.2rem;height:.32rem;border-radius:2px;background:currentColor;font-size:0;line-height:0;vertical-align:middle;margin:.3rem 0}
+html.wild .rk2.g1{--tw:#e58a00}
+html.wild .rk2.g2{--tw:#4f7fb8}
+html.wild .rk2.g3{--tw:#c2571a}
+html.wild .rk2.top::before{font-size:1.6rem;-webkit-text-stroke:.6px rgba(70,40,0,.55);text-shadow:0 0 6px rgba(var(--gl),1),0 0 14px rgba(var(--gl),.7)}
+</style>
+</head>
+<body class="min-h-screen">
+<header id="hdr" class="sticky top-0 z-20 flex items-end gap-2 px-4 pb-2" style="padding-top:env(safe-area-inset-top);height:calc(3.5rem + env(safe-area-inset-top))"></header>
+<main id="v" class="p-3 pb-40 max-w-md mx-auto"></main>
+<nav id="nav" class="fixed bottom-0 inset-x-0 z-20 bg-white/95 backdrop-blur border-t shadow-[0_-4px_16px_rgba(79,70,229,0.12)] grid grid-cols-5" style="padding-bottom:env(safe-area-inset-bottom)"></nav>
+<div id="modal"></div>
+<div id="lb"></div>
+<div id="tour"></div>
+<input type="file" id="imp" accept=".json,.txt,.xlsx,application/json,text/plain,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="hidden" onchange="impFile(this)">
+<div id="toast" class="fixed left-1/2 -translate-x-1/2 bottom-36 z-[60] bg-slate-800 text-white px-5 py-3 rounded-full text-sm opacity-0 transition pointer-events-none"></div>
+
+<script>
+const K='mj_data_v1';
+let S;try{S=JSON.parse(localStorage.getItem(K)||'null')}catch(e){}
+S=S||{players:[],games:[]};S.venues=S.venues||[];
+const cleanId=s=>String(s==null?'':s).replace(/[^\w-]/g,'').slice(0,40);
+const cleanCol=c=>/^#[0-9a-fA-F]{3,8}$/.test(c)?c:'#94a3b8';
+const cleanStr=(s,n)=>String(s==null?'':s).replace(/[\u0000-\u001f\u007f]/g,'').slice(0,n);
+const okPhoto=p=>typeof p==='string'&&p.length<600000&&/^data:image\/(jpeg|png|webp|gif);base64,[A-Za-z0-9+\/=]+$/.test(p);
+const fin=(v,d=0)=>Number.isFinite(+v)?+v:d;
+/* 匯入／讀取時的資料驗證：避免壞檔或惡意檔案注入畫面 */
+function sanitizeData(d){
+  if(!d||!Array.isArray(d.players)||!Array.isArray(d.games))throw 0;
+  const players=[];
+  d.players.forEach(p=>{if(!p)return;const id=cleanId(p.id),name=cleanStr(p.name,24);if(!id||!name||players.some(x=>x.id===id))return;const o={id,name,color:cleanCol(p.color)};if(okPhoto(p.photo))o.photo=p.photo;players.push(o)});
+  const games=[];
+  d.games.forEach(g=>{
+    if(!g||!Array.isArray(g.res))return;const id=cleanId(g.id);if(!id||!/^\d{4}-\d{2}-\d{2}$/.test(g.date)||games.some(x=>x.id===id))return;
+    const res=[];let bad=false;
+    g.res.forEach(r=>{if(!r||bad)return;const rid=cleanId(r.id);if(!rid||!Number.isFinite(+r.amt)){bad=true;return}
+      const o={id:rid,name:cleanStr(r.name,24),color:cleanCol(r.color),amt:fin(r.amt)};
+      if(r.unk)o.unk=1;if(r.debt){o.debt=Math.abs(fin(r.debt));o.paid=r.paid?1:0}res.push(o)});
+    if(bad||!res.length)return;
+    games.push({id,date:g.date,vid:cleanId(g.vid),vname:cleanStr(g.vname,40),rounds:Math.max(0,Math.round(fin(g.rounds))),fee:Math.max(0,fin(g.fee)),res});
+  });
+  const venues=[];(Array.isArray(d.venues)?d.venues:[]).forEach(v=>{if(!v)return;const id=cleanId(v.id),name=cleanStr(v.name,40);if(id&&name&&!venues.some(x=>x.id===id))venues.push({id,name})});
+  return {players,games,venues};
+}
+try{if(S&&Array.isArray(S.players)&&Array.isArray(S.games))S=sanitizeData(S);else S=null}catch(e){S=null}
+S=S||{players:[],games:[],venues:[]};
+/* 延遲合併儲存（打字時不會每個字都寫入），離開頁面時立即寫入 */
+let _st=0,_warned=false;
+const saveNow=()=>{clearTimeout(_st);_st=0;try{localStorage.setItem(K,JSON.stringify(S))}catch(e){if(!_warned){_warned=true;alert('儲存失敗：瀏覽器儲存空間不足或被封鎖。請先匯出備份。')}}};
+const save=()=>{clearTimeout(_st);_st=setTimeout(saveNow,150)};
+addEventListener('pagehide',()=>{if(_st)saveNow()});
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&_st)saveNow()});
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const r2=n=>Math.round(n*100)/100;
+const money=n=>(n>0?'+':n<0?'−':'')+Math.abs(n).toLocaleString();
+const cls=n=>n>0?'text-emerald-600':n<0?'text-red-500':'text-slate-400';
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const pl=id=>S.players.find(p=>p.id===id);
+const COLORS=['#ef4444','#f97316','#eab308','#84cc16','#22c55e','#14b8a6','#06b6d4','#3b82f6','#6366f1','#8b5cf6','#a855f7','#ec4899','#f43f5e','#78716c','#0f766e','#92400e'];
+const today=new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10);
+const CARD='panel',BTN='active:scale-95 transition';
+const av=(n,c,ph,sz=36,pid)=>ph?`<img src="${ph}" ${pid?`onclick="showPhoto('${pid}')"`:''} class="rounded-full object-cover shrink-0 border-2" style="width:${sz/16}rem;height:${sz/16}rem;border-color:${c}">`:`<span class="rounded-full text-white font-bold flex items-center justify-center shrink-0" style="width:${sz/16}rem;height:${sz/16}rem;font-size:${(sz*0.42/16).toFixed(3)}rem;background:${c}">${esc([...n][0]||'?')}</span>`;
+function showPhoto(id){const p=pl(id);if(!p||!p.photo)return;$('lb').innerHTML=`<div onclick="this.parentNode.innerHTML=''" class="fixed inset-0 z-[70] bg-black/80 flex flex-col items-center justify-center"><img src="${p.photo}" class="w-72 h-72 rounded-3xl object-cover shadow-2xl border-4" style="border-color:${p.color}"><div class="text-white text-xl font-bold mt-4">${esc(p.name)}</div><div class="text-white/60 text-sm mt-1">點任意處關閉</div></div>`;tr($('lb'))}
+function setPhoto(id,inp){
+  const f=inp.files[0];if(!f)return;
+  const img=new Image(),u=URL.createObjectURL(f);
+  img.onload=()=>{
+    const s=240,c=document.createElement('canvas');c.width=c.height=s;
+    const m=Math.min(img.width,img.height);
+    c.getContext('2d').drawImage(img,(img.width-m)/2,(img.height-m)/2,m,m,0,0,s,s);
+    URL.revokeObjectURL(u);pl(id).photo=c.toDataURL('image/jpeg',0.82);save();openSet();toast('照片已更新');
+  };
+  img.onerror=()=>{URL.revokeObjectURL(u);alert('無法讀取這張照片，請換一張試試')};
+  img.src=u;inp.value='';
+}
+function rmPhoto(id){delete pl(id).photo;save();openSet()}
+const fmtD=d=>{if(!d)return L('請選擇日期','Choose a date','日付を選択');const [y,m,x]=d.split('-').map(Number),w=new Date(y,m-1,x).getDay();return L(`${y} 年 ${m} 月 ${x} 日（${'日一二三四五六'[w]}）`,`${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][w]}, ${MON[m-1]} ${x}, ${y}`,`${y}年${m}月${x}日（${'日月火水木金土'[w]}）`)};
+const lb=t=>`<div class="text-sm font-semibold text-slate-500 mt-4 mb-2">${t}</div>`;
+const debtOn=()=>PREF.debt!==false;
+const nowStr=()=>new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10);
+const newD=()=>({date:nowStr(),sel:[],vals:['','','',''],sg:[1,1,1,1],vid:'',vn:'',eid:'',rounds:'',fee:'',debt:[0,0,0,0],paid:[0,0,0,0],snap:{}});
+let tab=0,selDay=null,lim=30,chartP='',chartY='all',rankY='all',calPick=false,D=newD();
+let cal={y:+today.slice(0,4),m:+today.slice(5,7)-1};
+const UNK={name:'未知',color:'#94a3b8'};
+const pp=id=>id==='unk'?UNK:(pl(id)||D.snap[id]);
+const hasU=()=>D.sel.includes('unk');
+const sum4On=()=>PREF.sum4===true;
+const autoIdx=()=>(sum4On()&&!hasU()&&D.sel.length==4)?3:-1;
+function setR(e){D.rounds=e.value.replace(/\D/g,'');e.value=D.rounds}
+const IC=p=>`<svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
+const TABS=[
+ [IC('<rect x="3.5" y="5" width="17" height="15.5" rx="1.5"/><path d="M3.5 10.5h17M8 3v4M16 3v4"/><path d="M12 13.2l2 2.1-2 2.1-2-2.1z" fill="currentColor"/>'),'日曆'],
+ [IC('<path d="M4 20.5l.9-4.1L16.4 4.9a2.1 2.1 0 013 3L7.9 19.6z"/><path d="M14.5 6.8l3 3"/><path d="M13 20.5h7.5"/>'),'記錄'],
+ [IC('<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1" fill="currentColor"/><path d="M12 1.5v3.5M12 19v3.5M1.5 12H5M19 12h3.5"/>'),'勝率'],
+ [IC('<path d="M3.5 20.5h17"/><rect x="5" y="12.5" width="3.4" height="8"/><rect x="10.3" y="7.5" width="3.4" height="13"/><rect x="15.6" y="3.5" width="3.4" height="17"/>'),'圖表'],
+ [IC('<path d="M4.5 18L3 8l5 4 4-7 4 7 5-4-1.5 10z"/><path d="M4.5 21h15"/>'),'排行']];
+const empty='<div class="'+CARD+' p-8 text-center text-slate-400"><div class="text-4xl mb-2">🀄</div>尚無資料，請先新增人員與對弈紀錄</div>';
+function toast(m){const t=$('toast');t.textContent=trs(m);t.classList.remove('opacity-0');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.add('opacity-0'),1800)}
+
+/* ===== 偏好設定 / 多語系 / 深色模式 ===== */
+try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
+const PK='mj_pref_v1';
+let PREF={lang:'zh',dark:false};
+try{PREF=Object.assign(PREF,JSON.parse(localStorage.getItem(PK)||'{}'))}catch(e){}
+let LANG=PREF.lang;
+const savePref=()=>{try{localStorage.setItem(PK,JSON.stringify(PREF))}catch(e){}};
+const L=(zh,en,ja)=>LANG==='en'?en:LANG==='ja'?(ja??en):zh;
+const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const WD=()=>LANG==='en'?['S','M','T','W','T','F','S']:LANG==='ja'?['日','月','火','水','木','金','土']:['日','一','二','三','四','五','六'];
+const FS={s:.9,m:1,l:1.15};
+const PREF_KEYS=['lang','theme','fee','debt','autoBk','sum4','minGames','fs'];
+const prefsClean=()=>{const o={};PREF_KEYS.forEach(k=>{if(PREF[k]!==undefined)o[k]=PREF[k]});return o};
+function applyPrefs(p){
+  if(!p||typeof p!=='object')return false;
+  const o={},bo=v=>v===true||v==='true'?true:v===false||v==='false'?false:undefined;
+  if(['zh','en','ja'].includes(p.lang))o.lang=p.lang;
+  if(['noir','wild','ivory'].includes(p.theme))o.theme=p.theme==='ivory'?'wild':p.theme;
+  ['fee','debt','autoBk','sum4'].forEach(k=>{const b=bo(p[k]);if(b!==undefined)o[k]=b});
+  const mg=parseInt(p.minGames);if(Number.isFinite(mg)&&mg>=0&&mg<1000)o.minGames=mg;
+  if(['s','m','l'].includes(p.fs))o.fs=p.fs;
+  if(!Object.keys(o).length)return false;
+  Object.assign(PREF,o);LANG=PREF.lang;savePref();applyTheme();return true;
+}
+function applyTheme(){
+  document.documentElement.style.setProperty('--fs',FS[PREF.fs]||1);
+  if(PREF.theme==='ivory')PREF.theme='wild';
+  document.documentElement.classList.toggle('wild',PREF.theme==='wild');
+  document.documentElement.lang=LANG==='zh'?'zh-Hant':LANG;
+  const m=document.querySelector('meta[name=theme-color]');if(m)m.content=PREF.theme==='wild'?'#10333a':'#000000';
+}
+applyTheme();
+
+const EX={'贏':['Win','勝ち'],'輸':['Lose','負け'],'勝':['W','勝'],'負':['L','負'],'和':['D','分'],'人員':['Players','人数'],'總場次':['Total games','総対局数'],'本月場次':['This month','今月'],'金額':['Amount','金額'],'例如 8':['e.g. 8','例 8']};
+const DICT={
+'日曆':['Calendar','カレンダー'],'記錄':['Record','記録'],'勝率':['Win %','勝率'],'圖表':['Charts','グラフ'],'排行':['Ranking','ランキング'],
+'尚無資料，請先新增人員與對弈紀錄':['No data yet. Add players and games first.','データがありません。先にプレイヤーと対局を追加してください。'],
+'＋ 新增此日紀錄':['＋ Add record for this day','＋ この日の記録を追加'],
+'無紀錄':['No records','記録なし'],
+'編輯紀錄':['Edit record','記録を編集'],'取消編輯':['Cancel edit','編集をやめる'],'編輯':['Edit','編集'],
+'確定刪除這筆紀錄？':['Delete this record?','この記録を削除しますか？'],'刪除':['Delete','削除'],'移除':['Remove','外す'],
+'📅 日期':['📅 Date','📅 日付'],
+'📍 對弈場所（可不選）':['📍 Venue (optional)','📍 対局場所（任意）'],
+'管理場所':['Manage venues','場所を管理'],
+'尚未新增場所，請點右側「管理場所」':['No venues yet. Tap "Manage venues" on the right.','場所がありません。右の「場所を管理」から追加してください。'],
+'🎯 打了幾將（可不填）':['🎯 Rounds played (optional)','🎯 半荘数（任意）'],
+'不確定的人可選「未知」':['Pick "Unknown" if unsure','不明な人は「不明」を選択'],
+'💰 輸贏金額':['💰 Win / lose amount','💰 勝ち負けの金額'],
+'先點「贏／輸」再輸入，第 4 位自動計算':['Tap Win/Lose, then enter the amount. The 4th player is calculated automatically.','「勝ち／負け」を押して金額を入力。4人目は自動計算されます。'],
+'先點「贏／輸」再輸入，每位金額都自行輸入':['Tap Win/Lose, then enter every amount yourself.','「勝ち／負け」を押して、全員の金額を自分で入力します。'],
+'有未知玩家：只記錄已知玩家，不自動結算':['Unknown player present: only known players are recorded, no auto settlement.','不明なプレイヤーがいる場合：既知のプレイヤーのみ記録し、自動精算しません。'],
+'不計入金額':['Not counted','金額に含めない'],'自動計算':['Auto','自動計算'],
+'儲存修改':['Save changes','変更を保存'],'儲存這場':['Save game','この対局を保存'],
+'📝 新增對弈結果':['📝 New game result','📝 対局結果を追加'],
+'請先新增玩家才能記錄對弈結果':['Add players first to record games.','対局を記録するには先にプレイヤーを追加してください。'],
+'新增玩家':['Add player','プレイヤー追加'],'尚無紀錄可分享':['Nothing to share yet','共有できる記録がありません'],'尚無紀錄':['No records yet','記録がありません'],
+'載入更多':['Load more','もっと見る'],'未知':['Unknown','不明'],
+'最多選 4 位':['You can pick up to 4 players','最大4人まで選べます'],
+'請點選 4 位參與人員（可選「未知」）':['Please pick 4 players ("Unknown" is allowed)','4人を選んでください（「不明」も選べます）'],
+'至少要有 1 位已知玩家':['At least 1 known player is required','既知のプレイヤーが最低1人必要です'],
+'請選擇日期':['Please choose a date','日付を選んでください'],
+'請輸入每位已知玩家的金額':['Please enter an amount for every known player','既知のプレイヤー全員の金額を入力してください'],
+'請輸入前 3 位的金額':['Please enter the first 3 amounts','最初の3人の金額を入力してください'],
+'已刪除':['Deleted','削除しました'],'已更新紀錄':['Record updated','記録を更新しました'],'已儲存':['Saved','保存しました'],'匯入完成':['Import complete','インポート完了'],'照片已更新':['Photo updated','写真を更新しました'],
+'儲存失敗，請檢查瀏覽器儲存權限':['Could not save. Please check browser storage permission.','保存できません。ブラウザの保存権限を確認してください。'],
+'檔案格式不正確，無法匯入':['Invalid file. Cannot import.','ファイル形式が正しくありません。'],
+'無法讀取這張照片，請換一張試試':['Could not read this photo. Try another one.','この写真を読み込めません。別の写真をお試しください。'],
+'點任意處關閉':['Tap anywhere to close','どこかをタップして閉じる'],
+'場次':['Games','対局數'.replace('數','数')],'勝負和':['Net','収支'],
+'歷年累積排行榜':['All-time ranking','通算ランキング'],'歷年累積':['All-time','通算'],'歷年':['All time','通算'],
+'每月勝負總和':['Monthly net total','月別収支合計'],'此年度無資料':['No data for this year','この年のデータなし'],
+'🏅 單場贏最多':['🏅 Biggest single win','🏅 1局の最大勝ち'],'💸 單場輸最多':['💸 Biggest single loss','💸 1局の最大負け'],
+'全體單場紀錄':['All players — single-game records','全員の1局記録'],'無資料':['No data','データなし'],
+'完成':['Done','完了'],'玩家與場所':['Players & venues','プレイヤーと場所'],
+'📷 選擇照片':['📷 Choose photo','📷 写真を選ぶ'],'📷 更換照片':['📷 Change photo','📷 写真を変更'],
+'最後的 🎨 可自訂任意顏色':['The last 🎨 lets you pick any color','最後の🎨で好きな色を選べます'],
+'＋ 新增人員':['＋ Add player','＋ プレイヤー追加'],'＋ 新增場所':['＋ Add venue','＋ 場所を追加'],
+'確定刪除此人員？\n（過往對弈紀錄仍會保留，但不再列入勝率、圖表與排行）':['Delete this player?\n(Past records are kept, but the player is no longer counted in win rates, charts and rankings.)','このプレイヤーを削除しますか？\n（過去の記録は残りますが、勝率・グラフ・順位には含まれなくなります）'],
+'確定刪除此場所？\n（過往紀錄仍會保留場所名稱）':['Delete this venue?\n(Past records keep the venue name.)','この場所を削除しますか？\n（過去の記録には場所名が残ります）']
+};
+const DK=Object.keys(DICT).sort((a,b)=>b.length-a.length);
+const RULES=[
+ [/(\d+) 年 (\d+) 月/g,(m,y,o)=>`${MON[o-1]} ${y}`,(m,y,o)=>`${y}年${o}月`],
+ [/(\d+) 年排行榜/g,(m,y)=>`${y} Ranking`,(m,y)=>`${y}年ランキング`],
+ [/(\d+) 年/g,(m,y)=>y,(m,y)=>`${y}年`],
+ [/(\d+) 月/g,(m,o)=>MON[o-1],(m,o)=>`${o}月`],
+ [/勝 (\d+)／負 (\d+)/g,(m,a,b)=>`W ${a} / L ${b}`,(m,a,b)=>`勝 ${a}／負 ${b}`],
+ [/場次・和(\d+)/g,(m,a)=>`Games · D${a}`,(m,a)=>`対局数・分${a}`],
+ [/共 (\d+) 場/g,(m,a)=>`${a} games`,(m,a)=>`全${a}局`],
+ [/所有紀錄（(\d+) 場）/g,(m,a)=>`All records (${a})`,(m,a)=>`全記録（${a}局）`],
+ [/參與人員（(\d+)\/4）/g,(m,a)=>`Players (${a}/4)`,(m,a)=>`参加者（${a}/4）`],
+ [/人員（(\d+)）/g,(m,a)=>`Players (${a})`,(m,a)=>`プレイヤー（${a}）`],
+ [/對弈場所（(\d+)）/g,(m,a)=>`Venues (${a})`,(m,a)=>`対局場所（${a}）`],
+ [/正在編輯 (\S+) 的紀錄，修改後請按「儲存修改」/g,(m,a)=>`Editing the record of ${a}. Press "Save changes" when done.`,(m,a)=>`${a} の記録を編集中です。終わったら「変更を保存」を押してください。`],
+ [/(\d+) 將/g,(m,a)=>`${a} rounds`,(m,a)=>`${a}半荘`],
+ [/(\d+) ?場/g,(m,a)=>`${a} games`,(m,a)=>`${a}局`]
+];
+function trs(s){
+  if(LANG==='zh'||typeof s!=='string')return s;
+  const i=LANG==='en'?0:1,core=s.trim();
+  if(EX[core])return s.replace(core,EX[core][i]);
+  let o=s;
+  for(const r of RULES)o=o.replace(r[0],r[i+1]);
+  for(const k of DK)if(o.includes(k))o=o.split(k).join(DICT[k][i]);
+  return o;
+}
+function tr(root){
+  if(!root||LANG==='zh')return;
+  const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT),a=[];let n;
+  while(n=w.nextNode())a.push(n);
+  a.forEach(n=>{const v=trs(n.nodeValue);if(v!==n.nodeValue)n.nodeValue=v});
+  root.querySelectorAll('[placeholder]').forEach(e=>{e.placeholder=trs(e.placeholder)});
+}
+{const _a=window.alert.bind(window),_c=window.confirm.bind(window);window.alert=m=>_a(trs(m));window.confirm=m=>_c(trs(m))}
+
+const hdrHTML=()=>`<button id="btnSet" onclick="openPrefs()" class="gbtn h-10 px-3 shrink-0 active:scale-95 transition">⚙️ ${L('設定','Settings','設定')}</button><b class="flex-1 text-center text-[24px] tracking-[.18em] truncate gold-text" style="font-family:var(--serif);font-weight:900">${L('麻將記帳','Mahjong','麻雀記帳')}</b><button id="btnPl" onclick="openSet()" class="gbtn h-10 px-3 shrink-0 active:scale-95 transition">➕ ${L('新增玩家','Add player','プレイヤー追加')}</button>`;
+const banner=t=>`<div class="banner-w"><span class="banner">${t}</span></div>`;
+const pageHead=(t,sub)=>`<div class="text-center mb-4 mt-1"><div class="gold-text text-[34px] leading-none tracking-[.12em]" style="font-family:var(--serif);font-weight:900">${t}</div><div class="rule"></div>${sub?`<div class="mt-3">${banner(sub)}</div>`:''}</div>`;
+
+/* ===== 設定頁 ===== */
+function prefsView(){
+  const sec=t=>`<b class="block mt-6 mb-2">${t}</b>`;
+  const lg=(k,n)=>`<button onclick="setLang('${k}')" class="h-14 rounded-2xl font-bold ${BTN} ${LANG===k?'bg-indigo-600 text-white shadow':'bg-white border-2 border-slate-200 text-slate-700'}">${n}</button>`;
+  const fsb=(v,t,s)=>`<button onclick="setFs('${v}')" class="h-14 rounded-2xl font-bold ${BTN} ${(PREF.fs||'m')===v?'bg-indigo-600 text-white shadow':'bg-white border-2 border-slate-200 text-slate-700'}"><span style="font-size:${s}rem">${t}</span></button>`;
+  const dk=(v,t)=>`<button onclick="setTheme('${v}')" class="h-14 rounded-2xl font-bold ${BTN} ${(PREF.theme||'noir')===v?'bg-indigo-600 text-white shadow':'bg-white border-2 border-slate-200 text-slate-700'}">${t}</button>`;
+  const s4=(v,t)=>`<button onclick="setSum4(${v})" class="h-14 rounded-2xl font-bold ${BTN} ${sum4On()===v?'bg-indigo-600 text-white shadow':'bg-white border-2 border-slate-200 text-slate-700'}">${t}</button>`;
+  const fb=(v,t)=>`<button onclick="setFeeOn(${v})" class="h-14 rounded-2xl font-bold ${BTN} ${feeOn()===v?'bg-indigo-600 text-white shadow':'bg-white border-2 border-slate-200 text-slate-700'}">${t}</button>`;
+  const dbs=(v,t)=>`<button onclick="setDebtOn(${v})" class="h-14 rounded-2xl font-bold ${BTN} ${debtOn()===v?'bg-indigo-600 text-white shadow':'bg-white border-2 border-slate-200 text-slate-700'}">${t}</button>`;
+  const abs=(v,t)=>`<button onclick="setAutoBk(${v})" class="h-12 rounded-2xl font-bold ${BTN} ${autoOn()===v?'bg-indigo-600 text-white shadow':'bg-white border-2 border-slate-200 text-slate-700'}">${t}</button>`;
+  const bk2=(i,t,f)=>`<button onclick="${f}" class="h-16 rounded-2xl font-bold flex flex-col items-center justify-center bg-indigo-50 text-indigo-700 ${BTN}"><span class="text-xl">${i}</span><span class="text-sm">${t}</span></button>`;
+  return `<div id="sc" class="fixed inset-0 z-50 bg-slate-100 overflow-y-auto" style="padding-bottom:env(safe-area-inset-bottom)"><div class="max-w-md mx-auto px-3 pb-16"><div class="sticky top-0 z-10 bg-slate-100 flex items-center justify-between pb-3 -mx-3 px-3 shadow-sm" style="padding-top:calc(env(safe-area-inset-top) + 12px)"><b class="text-lg">⚙️ ${L('設定','Settings','設定')}</b><button onclick="closeSet()" class="h-12 px-6 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold ${BTN}">完成</button></div>
+  ${sec('🌐 '+L('語言','Language','言語'))}<div data-tour="pf-lang" class="grid grid-cols-3 gap-2">${lg('zh','繁體中文')}${lg('en','English')}${lg('ja','日本語')}</div>
+  ${sec('🎨 '+L('介面風格','Theme','テーマ'))}<div data-tour="pf-dark" class="grid grid-cols-2 gap-2">${dk('noir','🌑 '+L('極道黑金','Noir Gold','黒金'))}${dk('wild','🌿 '+L('荒野草原','Wild Meadow','荒野の草原'))}</div>
+  ${sec('🔠 '+L('字體大小','Text size','文字サイズ'))}<div data-tour="pf-fs" class="grid grid-cols-3 gap-2">${fsb('s',L('小','Small','小'),.95)}${fsb('m',L('中','Medium','中'),1.15)}${fsb('l',L('大','Large','大'),1.4)}</div>
+  ${sec('💾 '+L('備份與還原','Backup & restore','バックアップと復元'))}<div data-tour="pf-backup" class="${CARD} p-4"><div class="grid grid-cols-2 gap-2">${bk2('📤',L('匯出備份','Export backup','バックアップ出力'),'expBackup()')}${bk2('📥',L('匯入備份','Import backup','バックアップ復元'),"$('imp').click()")}</div><p class="text-xs text-slate-400 mt-3 leading-relaxed">${L('備份檔（.json）含所有紀錄、人員、場所與玩家照片；從這裡匯出的 Excel（.xlsx）也能當備份匯入還原（含每場紀錄、玩家顏色與照片）。換手機或資料遺失時都可使用。','The backup (.json) holds all records, players, venues and photos. The Excel (.xlsx) exported here can also be imported as a backup (all games, player colors and photos). Use either to restore on a new phone or after data loss.','バックアップ（.json）には全記録・プレイヤー・場所・写真が含まれます。ここで出力したExcel（.xlsx）もバックアップとして復元できます（全対局・色・写真）。機種変更やデータ消失時にお使いください。')}</p><div class="text-xs text-slate-500 mt-2">${L('上次備份：','Last backup: ','前回のバックアップ：')}${PREF.lastBackup||L('尚未備份','never','未実施')}</div></div>
+  ${sec('📊 '+L('匯出與分享','Export & share','エクスポートと共有'))}<div data-tour="pf-export" class="${CARD} p-4"><div class="grid grid-cols-2 gap-2">${bk2('📗',L('匯出 Excel','Export Excel','Excel出力'),'expXlsx()')}${bk2('💬',L('分享到 LINE','Share to LINE','LINEで共有'),'toLine()')}</div><p class="text-xs text-slate-400 mt-3 leading-relaxed">${L('Excel 檔含每場紀錄、逐人明細、排行、每月結算與東錢，也可當作備份匯入還原；LINE 只分享勝率頁內容。','The Excel file has every game, per-player details, ranking, monthly results and table fees, and can also be imported as a backup. LINE shares only the win-rate page.','Excelには全対局・個人別明細・ランキング・月別結果・場代が入り、バックアップとして復元にも使えます。LINEでは勝率ページのみ共有します。')}</p></div>
+  ${sec('🧮 '+L('第四家金額','4th player amount','4人目の金額'))}<div data-tour="pf-sum4" class="grid grid-cols-2 gap-2">${s4(false,L('自行輸入','Enter manually','手入力'))}${s4(true,L('自動加總','Auto total','自動計算'))}</div><p class="text-xs text-slate-400 mt-2 px-1 leading-relaxed">${L('自行輸入：4 位金額都由你輸入，不做加總。自動加總：輸入前 3 位後，第 4 位自動算成讓總和為 0。','Manual: you enter all four amounts, nothing is totaled. Auto total: after three amounts, the 4th is calculated so the sum is 0.','手入力：4人とも金額を入力し、合計はしません。自動計算：3人入力すると4人目は合計0になるよう自動計算します。')}</p>
+  ${sec('🏮 '+L('東錢欄位','Table fee field','場代欄'))}<div data-tour="pf-feesw" class="grid grid-cols-2 gap-2">${fb(true,L('顯示','Show','表示'))}${fb(false,L('關閉','Hide','非表示'))}</div><p class="text-xs text-slate-400 mt-2 px-1 leading-relaxed">${L('關閉後，記錄頁不顯示東錢欄位，圖表頁也不顯示東錢統計；已輸入的資料仍會保留。','When hidden, the table fee field and the fee statistics on the Charts page are not shown. Entered data is kept.','非表示にすると、記録ページの場代欄とグラフページの場代集計が非表示になります。入力済みのデータは保持されます。')}</p>
+  ${sec('💸 '+L('欠款功能','Debt tracking','ツケ管理'))}<div data-tour="pf-debtsw" class="grid grid-cols-2 gap-2">${dbs(true,L('開啟','On','オン'))}${dbs(false,L('關閉','Off','オフ'))}</div><p class="text-xs text-slate-400 mt-2 px-1 leading-relaxed">${L('開啟後，輸家可標記「欠款」，排行頁會列出每人未還金額，可逐筆或一次還清。關閉只會隱藏功能，資料仍會保留。','When on, losers can be marked "owed" and the Ranking page lists each player\'s unpaid amount. Turning it off only hides it; data is kept.','オンにすると負けた人を「ツケ」にでき、ランキングに未返済額を表示します。オフにしても非表示になるだけでデータは残ります。')}</p>
+  ${sec('🎯 '+L('勝率頁顯示門檻','Win-rate page filter','勝率ページの表示条件'))}<div class="${CARD} p-4"><div data-tour="pf-min" class="flex items-center gap-3"><span class="text-sm flex-1 leading-snug">${L('參與場次在此數字以內的玩家，不顯示在勝率頁','Hide players with this many games or fewer from the win-rate page','この局数以下のプレイヤーを勝率ページに表示しない')}</span><input inputmode="numeric" value="${PREF.minGames||''}" placeholder="${L('不限','None','なし')}" oninput="setMin(this)" class="w-24 h-12 rounded-xl border-2 border-slate-200 px-3 text-lg text-center font-bold"></div><p class="text-xs text-slate-400 mt-2 leading-relaxed">${L('例如輸入 3，參與 3 場以內的玩家不會出現；留空則全部顯示。','e.g. enter 3 to hide players with 3 or fewer games. Leave empty to show everyone.','例：3 と入力すると3局以下のプレイヤーを非表示。空欄なら全員表示。')}</p></div>
+  ${sec('🛡️ '+L('自動備份','Auto backup','自動バックアップ'))}<div data-tour="pf-auto" class="${CARD} p-4"><div class="grid grid-cols-2 gap-2">${abs(true,L('開啟','On','オン'))}${abs(false,L('關閉','Off','オフ'))}</div><p class="text-xs text-slate-400 mt-3 leading-relaxed">${L('開啟後，每次新增對弈紀錄（以及匯入、還原前）都會自動存一份備份，最多保留最近 10 份。也可以按下方按鈕手動備份。','When on, a backup is saved automatically each time you add a game (and before any import or restore). The latest 10 are kept. You can also back up manually below.','オンにすると、対局を追加するたび（およびインポート・復元の前）に自動でバックアップを保存します。最新10件まで保持。下のボタンで手動保存もできます。')}</p><button onclick="manualBk()" class="gbtn w-full h-12 mt-3 active:scale-95 transition">🛡️ ${L('立即備份','Back up now','今すぐバックアップ')}</button><div id="bkList" class="mt-3"></div><p class="text-[11px] text-slate-400 mt-2 leading-relaxed">${L('這些備份存在 App 內，可救回誤刪或誤匯入；若清除瀏覽器資料或換手機，請另外「匯出備份」存到檔案。','These backups live inside the app: they rescue accidental deletes or imports. If you clear browser data or change phones, also use "Export backup" to save a file.','これらのバックアップはアプリ内に保存され、誤削除や誤インポートから復元できます。ブラウザのデータ消去や機種変更に備え、「バックアップ出力」でファイルも保存してください。')}</p></div>
+  ${sec('🧭 '+L('使用說明','Help','ヘルプ'))}<button onclick="startTour()" class="w-full h-16 rounded-2xl bg-gradient-to-r from-amber-400 to-orange-500 text-white font-bold text-lg shadow-lg ${BTN}">🧭 ${L('使用小幫手','Guided tour','使い方ガイド')}</button><p class="text-xs text-slate-400 mt-2 px-1">${L('系統會圈出各項功能並簡單說明用法。','Highlights each feature with a short explanation.','各機能を丸で囲んで使い方を説明します。')}</p>
+  <div class="text-center text-xs text-slate-400 mt-10 leading-relaxed">${L('麻將記帳21.0版，著作人:王俊博 版權所有','Mahjong Ledger v21.0, Author: 王俊博, All rights reserved','麻雀記帳21.0版、著作者：王俊博　版権所有')}</div></div></div>`;
+}
+function openPrefs(){
+  const o=$('sc'),t=o?o.scrollTop:0;
+  mset(prefsView());tr($('modal'));document.body.style.overflow='hidden';$('sc').scrollTop=t;bkRender();
+}
+function setLang(k){PREF.lang=LANG=k;savePref();applyTheme();openPrefs();render()}
+const feeOn=()=>PREF.fee!==false;
+function setSum4(b){PREF.sum4=b;savePref();openPrefs();render()}
+function setFeeOn(b){PREF.fee=b;savePref();openPrefs();render()}
+function setDebtOn(b){PREF.debt=b;savePref();openPrefs();render()}
+function setMin(e){e.value=e.value.replace(/\D/g,'');PREF.minGames=e.value===''?0:+e.value;savePref()}
+function setFs(k){const h=document.documentElement;h.classList.add('tx');PREF.fs=k;savePref();applyTheme();openPrefs();setTimeout(()=>h.classList.remove('tx'),600)}
+function setTheme(k){const h=document.documentElement;h.classList.add('tx');PREF.theme=k;savePref();applyTheme();openPrefs();setTimeout(()=>h.classList.remove('tx'),600)}
+
+/* ===== 使用小幫手 ===== */
+const TOUR=[
+ {sel:'#btnSet',t:['設定總覽','Settings','設定'],x:['所有進階功能都在這裡：語言、介面風格、匯出與分享、東錢欄位、勝率顯示門檻、備份與還原，也能隨時重開小幫手。','Everything advanced lives here: language, dark mode, export & share, table-fee field, win-rate filter, backup & restore, and this guide.','詳細機能はここに集約：言語・ダークモード・エクスポート／共有・場代欄・勝率の表示条件・バックアップと復元・このガイド。']},
+ {sel:'#btnPl',t:['新增玩家','Add players','プレイヤー追加'],x:['先建立玩家，之後記錄時只要點選名字即可。人數沒有上限。','Create players first; later you only tap names when recording. No limit on players.','先にプレイヤーを登録すると、記録時は名前をタップするだけ。人数制限はありません。']},
+ {open:'players',sel:'[data-tour=pl-card]',t:['玩家資料','Player details','プレイヤー情報'],x:['每位玩家可設定：📷 相機或相簿照片、名稱、顏色（最後的 🎨 可自訂任意顏色）。照片會顯示在勝率與排行榜；刪除玩家不會刪掉過往紀錄。','Per player: 📷 camera or gallery photo, name and color (the last 🎨 picks any color). Photos show on Win % and Ranking. Deleting a player keeps past records.','各プレイヤーに 📷 写真（カメラ／ギャラリー）・名前・色（最後の🎨で自由に選択）を設定。写真は勝率とランキングに表示。削除しても過去の記録は残ります。']},
+ {open:'players',sel:'#venueSec',t:['對弈場所','Venues','対局場所'],x:['在這裡新增、改名或刪除常去的場所，記錄時點一下就能選。改名後過往紀錄會一併更新。','Add, rename or delete venues here, then pick one with a tap when recording. Renaming updates past records.','よく使う場所を追加・改名・削除。記録時はタップで選択。改名すると過去の記録も更新されます。']},
+ {tab:0,sel:'[data-tour=calTitle]',t:['日曆：快速切換年月','Calendar: jump to any month','カレンダー：年月を素早く切替'],x:['點年月標題會展開 12 個月選單（有紀錄的月份標示場數），再點月份就能直接跳過去，不用一直左右滑。','Tap the title to open a 12-month picker (months with games show a count) and jump straight there.','タイトルをタップすると12か月の一覧が開き（記録のある月は件数表示）、すぐ移動できます。']},
+ {tab:0,sel:'[data-tour=monthList]',t:['當月所有紀錄','Records of the month','今月の記録'],x:['日曆下方列出當月全部紀錄。點綠色日期會框選並跳到當天，再點一次取消；點沒有紀錄的日期可直接新增。每筆都能編輯或刪除。','All records of the month are listed below. Tap a green day to highlight and jump to it; tap again to clear. Tap an empty day to add a record. Every record can be edited or deleted.','下に今月の全記録を表示。緑の日をタップでその日へジャンプ（もう一度で解除）。記録のない日は追加も可能。各記録は編集・削除できます。']},
+ {tab:1,sel:'[data-tour=date]',t:['記錄：日期','Record: date','記録：日付'],x:['先選對弈日期（點灰色框），可選過去任何日期補登。','Pick the game date (tap the gray box). Any past date works for catching up.','対局日を選択（灰色の枠をタップ）。過去の日付も選べます。']},
+ {tab:1,sel:'[data-tour=players]',t:['選 4 位玩家並輸入金額','Pick 4 players and amounts','4人を選んで金額入力'],x:['依序點選 4 位參與人員；不確定是誰就點「❓ 未知」（可多位）。接著每人點「贏／輸」並輸入金額，第 4 位預設自行輸入，也可在設定改成自動結算；有未知玩家時只記錄已知玩家、不自動結算。','Tap 4 players in order; use "Unknown" if unsure (several allowed). Then tap Win/Lose and enter amounts: the 4th is typed by you by default, or settled automatically if you switch it in Settings. With Unknown players only known players are recorded and nothing is auto-settled.','4人を順にタップ。不明な人は「不明」（複数可）。各自「勝ち／負け」を押して金額を入力します。4人目は標準で手入力、設定で自動計算にもできます。不明がいる場合は既知のプレイヤーのみ記録し、自動計算しません。']},
+ {tab:1,sel:'[data-tour=players]',d:1,t:['欠款標記','Mark debts','ツケの記録'],x:['有輸家時，金額下方會出現「＋ 標記為欠款」；標記後這筆會列入排行頁的欠款清單。不需要可到設定頁關閉。','When someone loses, a "Mark as owed" button appears under the amount; marked amounts go to the Debts list on the Ranking page. Turn it off in Settings if not needed.','負けた人の金額の下に「ツケにする」ボタンが出ます。押すとランキングのツケ一覧に載ります。不要なら設定でオフにできます。']},
+ {tab:1,sel:'[data-tour=fee]',f:1,t:['東錢（選填）','Table fee (optional)','場代（任意）'],x:['可輸入每場東錢，會顯示在每筆紀錄並統計到圖表頁；不需要的話可到設定頁關閉此欄位。','Enter the table fee per game; it shows on each record and is totalled on Charts. You can hide this field in Settings.','1局ごとの場代を入力でき、各記録に表示されグラフで集計されます。不要なら設定で非表示にできます。']},
+ {tab:1,sel:'[data-tour=save]',t:['儲存與修改','Save and edit','保存と修正'],x:['場所、將數也可一併填寫。按這裡儲存；下方每筆紀錄都能「編輯」（帶回表單修改）或「刪除」。','Venue and rounds are optional too. Tap to save; every record below can be edited (loaded back into the form) or deleted.','場所・半荘数も任意で入力。ここで保存。下の各記録は「編集」（フォームに読み込み）または「削除」できます。']},
+ {tab:2,sel:'[data-tour=wr]',t:['勝率','Win rate','勝率'],x:['依勝率由高到低排序，顯示勝／負／和與累積金額；點照片可放大。想隱藏出賽太少的玩家，請到設定頁設定門檻。','Sorted by win rate, with W/L/D counts and totals; tap a photo to enlarge. To hide players with too few games, set a threshold in Settings.','勝率の高い順に勝・負・分と累計を表示。写真タップで拡大。試合数の少ないプレイヤーを隠すには設定で条件を指定します。']},
+ {tab:3,sel:'#chartChips',t:['圖表：選玩家與排序','Charts: pick and reorder','グラフ：選択と並べ替え'],x:['點玩家切換圖表；長按名字後左右拖曳，可自行調整順序（排第一個的人是預設顯示）。','Tap to switch player; long-press a name and drag left/right to reorder (the first one is shown by default).','タップで切替。名前を長押しして左右にドラッグすると並べ替え（先頭が初期表示になります）。']},
+ {tab:3,sel:'[data-hs=chartY]',t:['年份篩選','Year filter','年の絞り込み'],x:['選擇年份後，該玩家的累積總和、每月長條圖、單場紀錄與東錢都只計算該年度。','Choosing a year limits the total, monthly bars, single-game records and table fees to that year.','年を選ぶと、累計・月別グラフ・1局記録・場代がその年のみの集計になります。']},
+ {tab:3,sel:'[data-tour=monthChart]',t:['每月勝負總和','Monthly net total','月別収支'],x:['綠色向上是該月贏、紅色向下是輸，數字就是當月總和。','Green up means a net win, red down a net loss; the number is the total for that month.','緑は上向き＝勝ち越し、赤は下向き＝負け越し。数字がその月の合計です。']},
+ {tab:3,sel:'[data-tour=feeCard]',f:1,t:['東錢統計','Table fee totals','場代の集計'],x:['顯示東錢總和、每月金額與每場明細，同樣可依年份查看。','Shows the fee total, monthly amounts and each game, also filtered by year.','場代の合計・月別金額・各対局の明細を表示。年別にも確認できます。']},
+ {tab:4,sel:'[data-hs=rank]',t:['排行榜','Ranking','ランキング'],x:['切換「歷年累積」或各年度，每位玩家顯示累積輸贏與該期間的勝率，可知道年勝率。','Switch between all-time and each year; every player shows the total and win rate for that period.','通算または年別に切替。各プレイヤーの累計とその期間の勝率を表示します。']},
+ {tab:4,sel:'[data-tour=rk]',t:['名次與照片','Rank and photo','順位と写真'],x:['前三名有獎牌；點照片可放大查看。','The top three get medals; tap a photo to enlarge it.','上位3名にメダル。写真をタップで拡大。']},
+ {tab:4,sel:'[data-tour=debtList]',d:1,t:['欠款清單','Debt list','ツケ一覧'],x:['這裡列出每位玩家尚未還的金額與日期；可逐筆「標記已還」，或按「全部還清」。紀錄卡片上的「欠款」標籤也能直接點選切換已還。','Shows each player\'s unpaid amounts and dates. Mark items paid one by one, or tap Settle all. The "Owes" tag on a record card also toggles paid.','各プレイヤーの未返済額と日付を表示。1件ずつ「返済済にする」か「全額返済」。記録カードの「未払い」タグをタップしても切り替えられます。']},
+ {open:'prefs',sel:'[data-tour=pf-lang]',t:['語言','Language','言語'],x:['可切換繁體中文、English、日本語，整個介面會立即改變。','Switch between 繁體中文, English and 日本語; the whole interface changes at once.','繁體中文・English・日本語を切り替えると、画面全体がすぐ変わります。']},
+ {open:'prefs',sel:'[data-tour=pf-dark]',t:['介面風格','Theme','テーマ'],x:['切換「極道黑金」（黑底金字紅色）或「荒野草原」（草地、天空與青綠發光）。切換時有柔和轉場。','Switch between Noir Gold (black, gold and crimson) and Wild Meadow (meadow greens, sky and glowing mint).','「黒金」（黒・金・紅）と「荒野の草原」（草原と空、ミントの光）を切り替えます。']},
+ {open:'prefs',sel:'[data-tour=pf-fs]',t:['字體大小','Text size','文字サイズ'],x:['選「小、中、大」，整個介面（文字、按鈕、頭像）會一起放大或縮小，並自動適應不同手機螢幕。','Choose Small, Medium or Large. Text, buttons and avatars scale together and adapt to your screen.','「小・中・大」を選ぶと、文字・ボタン・アイコンが一緒に拡大縮小し、画面に合わせます。']},
+ {open:'prefs',sel:'[data-tour=pf-export]',t:['匯出與分享','Export and share','エクスポートと共有'],x:['匯出 Excel：含每場紀錄、逐人明細、排行、每月結算與東錢。分享到 LINE 只會傳送勝率頁內容。','Export Excel with every game, per-player details, ranking, monthly results and table fees. Share to LINE sends only the win-rate page.','Excel出力：全対局・個人別明細・ランキング・月別結果・場代を含みます。LINE共有は勝率ページのみ送信します。']},
+ {open:'prefs',sel:'[data-tour=pf-sum4]',t:['第四家金額','4th player amount','4人目の金額'],x:['預設由你自行輸入 4 位金額、不做加總；若想讓第 4 位自動算成總和為 0，可切換成「自動加總」。','By default you enter all four amounts and nothing is totaled. Switch to Auto total to have the 4th player calculated so the sum is 0.','標準では4人分の金額を自分で入力し、合計はしません。「自動計算」にすると4人目が合計0になるよう自動計算されます。']},
+ {open:'prefs',sel:'[data-tour=pf-feesw]',t:['東錢欄位','Table fee field','場代欄'],x:['可隨時顯示或關閉東錢欄位；關閉時記錄頁與圖表頁都不顯示，已輸入的資料仍會保留。','Show or hide the table-fee field at any time. When hidden it disappears from Record and Charts; entered data is kept.','場代欄はいつでも表示／非表示にできます。非表示でも記録とグラフから消えるだけで、入力済みデータは保持されます。']},
+ {open:'prefs',sel:'[data-tour=pf-min]',t:['勝率頁門檻','Win-rate filter','勝率の表示条件'],x:['輸入數字，例如 3，參與 3 場以內的玩家不會出現在勝率頁；留空則全部顯示。','Enter a number, e.g. 3, to hide players with 3 games or fewer from the win-rate page. Leave empty to show everyone.','数字（例：3）を入力すると、3局以下のプレイヤーが勝率ページに表示されません。空欄なら全員表示。']},
+ {open:'prefs',sel:'[data-tour=pf-debtsw]',t:['欠款功能','Debt tracking','ツケ管理'],x:['開啟或關閉欠款標記與欠款清單；關閉只是隱藏，資料保留。','Turn debt marking and the Debts list on or off. Off only hides them; data is kept.','ツケの記録と一覧のオン／オフ。オフでもデータは保持されます。']},
+ {open:'prefs',sel:'[data-tour=pf-auto]',t:['自動備份','Auto backup','自動バックアップ'],x:['每次新增紀錄會自動存一份備份（最多 10 份），也可手動備份，並能從清單還原或匯出。換手機前記得再「匯出備份」。','A backup is saved every time you add a game (latest 10 kept). You can also back up manually, restore or export from the list. Export a backup file before changing phones.','対局を追加するたびに自動保存（最新10件）。手動保存や、一覧からの復元・出力もできます。機種変更前にはバックアップ出力も行ってください。']},
+ {open:'prefs',sel:'[data-tour=pf-backup]',t:['備份與還原','Backup and restore','バックアップと復元'],x:['匯出備份（.json）含所有資料與照片。匯入時可選 .json，或之前匯出的 Excel（.xlsx）；匯入會取代目前資料，建議定期備份。','Export a backup (.json) with all data and photos. To restore, pick that .json or a previously exported Excel (.xlsx). Importing replaces current data, so back up regularly.','バックアップ（.json）には全データと写真が含まれます。復元には.json、または以前出力したExcel（.xlsx）を選択。取り込むと現在のデータは置き換わるので定期的に保存してください。']},
+ {sel:'#nav',t:['底部五個分頁','Five tabs','5つのタブ'],x:['日曆、記錄、勝率、圖表、排行。除了點選下方分頁，也可以在畫面上左右滑動切換上一頁／下一頁（圖表上方的玩家列與日期列除外）。有問題可隨時回到設定頁重開小幫手！','Calendar, Record, Win %, Charts, Ranking. Besides tapping a tab, swipe left or right on the screen to go to the next or previous page (not on scrolling chip rows). Reopen this guide from Settings any time!','カレンダー・記録・勝率・グラフ・ランキング。下のタブのほか、画面を左右にスワイプして前後のページへ移動できます（横スクロールの行を除く）。ガイドは設定からいつでも再表示できます。']}
+];
+let tourI=-1,TA=TOUR,tourModal=null;
+const pickX=a=>LANG==='en'?a[1]:LANG==='ja'?a[2]:a[0];
+function mset(x){const m=$('modal'),was=!!m.innerHTML;m.classList.toggle('mnew',!was);m.innerHTML=x}
+function modalQuiet(){$('modal').innerHTML='';document.body.style.overflow='';tourModal=null}
+function startTour(){closeSet();TA=TOUR.filter(s=>(feeOn()||!s.f)&&(debtOn()||!s.d));tourI=0;tourModal=null;tourStep()}
+function endTour(){tourI=-1;$('tour').innerHTML='';if(tourModal){modalQuiet();render()}}
+function tourGo(d){tourI+=d;if(tourI>=TA.length)return endTour();if(tourI<0)tourI=0;tourStep()}
+function tourStep(){
+  const s=TA[tourI];
+  if((s.open||null)!==tourModal&&tourModal)modalQuiet();
+  if(s.open&&tourModal!==s.open){if(s.open==='prefs')openPrefs();else openSet();tourModal=s.open}
+  if(!s.open&&s.tab!==undefined&&s.tab!==tab){tab=s.tab;render();scrollTo(0,0)}
+  setTimeout(()=>{
+    const el=s.sel?document.querySelector(s.sel):null;
+    if(el)el.scrollIntoView({block:'center'});
+    setTimeout(()=>drawTour(el),140);
+  },90);
+}
+function drawTour(el){
+  const s=TA[tourI],last=tourI===TA.length-1,vh=innerHeight;
+  let hole,pos='top:30%';
+  if(el){
+    const r=el.getBoundingClientRect(),p=6;
+    hole=`<div style="position:fixed;left:${r.left-p}px;top:${r.top-p}px;width:${r.width+p*2}px;height:${r.height+p*2}px;border-radius:18px;box-shadow:0 0 0 9999px rgba(0,0,0,.72);border:3px solid #fbbf24;pointer-events:none"></div>`;
+    pos=r.top>vh*0.5?`bottom:${vh-r.top+p+14}px`:`top:${r.bottom+p+14}px`;
+  }else hole='<div style="position:fixed;inset:0;background:rgba(0,0,0,.72)"></div>';
+  $('tour').innerHTML=`<div style="position:fixed;inset:0;z-index:90">${hole}<div style="position:fixed;left:12px;right:12px;${pos};max-width:420px;margin:0 auto;max-height:60vh;overflow-y:auto" class="bg-white rounded-3xl p-4 shadow-2xl"><div class="flex items-center justify-between mb-1"><b class="text-indigo-600">🧭 ${tourI+1} / ${TA.length}</b><button onclick="endTour()" class="h-10 px-3 rounded-xl text-slate-400 text-sm font-semibold">${L('跳過','Skip','スキップ')}</button></div><b class="block text-[17px] mb-1">${pickX(s.t)}</b><p class="text-[15px] leading-relaxed mb-4">${pickX(s.x)}</p><div class="flex gap-2"><button onclick="tourGo(-1)" ${tourI===0?'disabled':''} class="flex-1 h-12 rounded-2xl bg-slate-100 text-slate-600 font-bold disabled:opacity-40 ${BTN}">‹ ${L('上一步','Back','戻る')}</button><button onclick="tourGo(1)" class="flex-1 h-12 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold ${BTN}">${last?L('完成','Done','完了'):L('下一步','Next','次へ')+' ›'}</button></div></div></div>`;
+}
+
+/* ===== 圖表頁玩家拖曳排序 ===== */
+let dragEnd=0;
+function pickChart(id){if(Date.now()-dragEnd<500)return;chartP=id;render()}
+function dragInit(box){
+  if(!box)return;
+  let d=null,timer=0,sx=0,sy=0;
+  const cs=()=>[...box.querySelectorAll('[data-pid]')];
+  const begin=(el,x,y)=>{sx=x;sy=y;clearTimeout(timer);timer=setTimeout(()=>{d={el,moved:false};el.style.transform='scale(1.12)';el.style.boxShadow='0 8px 20px rgba(0,0,0,.3)';el.style.zIndex=5;navigator.vibrate&&navigator.vibrate(15)},380)};
+  const move=(x,y,ev)=>{
+    if(!d){if(Math.abs(x-sx)>8||Math.abs(y-sy)>8)clearTimeout(timer);return}
+    if(ev.cancelable)ev.preventDefault();
+    d.moved=true;
+    const over=cs().find(c=>{if(c===d.el)return false;const r=c.getBoundingClientRect();return x>r.left&&x<r.right});
+    if(over){const r=over.getBoundingClientRect();box.insertBefore(d.el,x<r.left+r.width/2?over:over.nextSibling)}
+    const b=box.getBoundingClientRect();if(x<b.left+36)box.scrollLeft-=10;else if(x>b.right-36)box.scrollLeft+=10;
+  };
+  const end=()=>{
+    clearTimeout(timer);if(!d)return;const x=d;d=null;
+    x.el.style.transform=x.el.style.boxShadow=x.el.style.zIndex='';
+    dragEnd=Date.now();
+    if(x.moved){const ids=cs().map(c=>c.dataset.pid);S.players=[...ids.map(i=>pl(i)).filter(Boolean),...S.players.filter(p=>!ids.includes(p.id))];save()}
+  };
+  box.addEventListener('touchstart',e=>{const el=e.target.closest('[data-pid]');if(el)begin(el,e.touches[0].clientX,e.touches[0].clientY)},{passive:true});
+  box.addEventListener('touchmove',e=>move(e.touches[0].clientX,e.touches[0].clientY,e),{passive:false});
+  box.addEventListener('touchend',end);box.addEventListener('touchcancel',end);
+  box.addEventListener('mousedown',e=>{const el=e.target.closest('[data-pid]');if(el)begin(el,e.clientX,e.clientY)});
+  box.addEventListener('mousemove',e=>{if(e.buttons||d)move(e.clientX,e.clientY,e)});
+  box.addEventListener('mouseup',end);box.addEventListener('mouseleave',end);
+}
+function remind(){
+  if(!S.games.length)return '';
+  const d=PREF.lastBackup?(new Date(nowStr())-new Date(PREF.lastBackup))/864e5:999;
+  if(d<=30)return '';
+  return `<button onclick="openPrefs()" class="w-full mb-3 rounded-2xl bg-amber-50 border border-amber-200 text-amber-700 text-sm text-left px-4 py-3 ${BTN}">${PREF.lastBackup?L('💾 已超過 30 天沒有備份，建議到設定頁匯出一份備份。','💾 No backup in over 30 days. Export one in Settings.','💾 30日以上バックアップしていません。設定から書き出しましょう。'):L('💾 還沒有備份過資料，建議到設定頁匯出一份備份，避免資料遺失。','💾 No backup yet. Export one in Settings to avoid data loss.','💾 まだバックアップがありません。データ消失を防ぐため設定から書き出しましょう。')} ›</button>`;
+}
+function pickV(id){if(D.vid===id){D.vid='';D.vn=''}else{const x=S.venues.find(v=>v.id===id);D.vid=id;D.vn=x?x.name:D.vn}render()}
+function setF(e){D.fee=e.value.replace(/[^\d.]/g,'');e.value=D.fee}
+
+/* ===== LINE（只分享勝率頁）===== */
+const winSort=(a,b)=>{const ra=a.n?a.w/a.n:-1,rb=b.n?b.w/b.n:-1;return rb-ra||b.n-a.n||b.sum-a.sum};
+const rateOf=s=>s.n?Math.round(s.w/s.n*1000)/10:0;
+function winText(){
+  const st=stats().sort(winSort).filter(s=>s.n>0&&s.n>(PREF.minGames||0));
+  const gm=n=>L(`${n}場`,`${n} games`,`${n}局`);
+  let t=L('🎯 麻將勝率榜','🎯 Mahjong Win Rates','🎯 麻雀勝率ランキング')+'\n'+L(`共 ${S.games.length} 場`,`${S.games.length} games in total`,`全${S.games.length}局`)+'\n\n';
+  st.forEach((s,i)=>{t+=`${['🥇','🥈','🥉'][i]||(i+1)+'.'} ${s.p.name}　${rateOf(s)}%\n    ${gm(s.n)}｜${L('勝','W','勝')}${s.w} ${L('負','L','負')}${s.l}${s.d?' '+L('和','D','分')+s.d:''}｜${money(s.sum)}\n`});
+  return t.trim();
+}
+function toLine(){
+  if(!S.games.length)return alert('尚無紀錄可分享');
+  location.href='https://line.me/R/share?text='+encodeURIComponent(winText());
+}
+
+/* ===== Excel（.xlsx，離線產生）===== */
+const xe=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const crcT=(()=>{const t=[];for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
+const crc32=b=>{let c=~0;for(let i=0;i<b.length;i++)c=crcT[(c^b[i])&255]^(c>>>8);return ~c>>>0};
+function zipFiles(files){
+  const u16=v=>[v&255,v>>8&255],u32=v=>[v&255,v>>8&255,v>>16&255,v>>>24&255],E=new TextEncoder();
+  const parts=[],cen=[];let off=0;
+  files.forEach(f=>{
+    const nm=E.encode(f.n),c=crc32(f.d),n=f.d.length;
+    const lh=new Uint8Array([0x50,0x4b,3,4,...u16(20),...u16(0x0800),...u16(0),...u16(0),...u16(0x21),...u32(c),...u32(n),...u32(n),...u16(nm.length),...u16(0),...nm]);
+    parts.push(lh,f.d);
+    cen.push(new Uint8Array([0x50,0x4b,1,2,...u16(20),...u16(20),...u16(0x0800),...u16(0),...u16(0),...u16(0x21),...u32(c),...u32(n),...u32(n),...u16(nm.length),...u16(0),...u16(0),...u16(0),...u16(0),...u32(0),...u32(off),...nm]));
+    off+=lh.length+n;
+  });
+  const cl=cen.reduce((a,b)=>a+b.length,0);
+  const end=new Uint8Array([0x50,0x4b,5,6,0,0,0,0,...u16(files.length),...u16(files.length),...u32(cl),...u32(off),0,0]);
+  return new Blob([...parts,...cen,end],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+}
+const colL=n=>{let s='';n++;while(n){const m=(n-1)%26;s=String.fromCharCode(65+m)+s;n=Math.floor((n-1)/26)}return s};
+function sheetXml(rows){
+  return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><cols><col min="1" max="14" width="16" customWidth="1"/></cols><sheetData>'+
+  rows.map((r,i)=>`<row r="${i+1}">`+r.map((v,j)=>{const ref=colL(j)+(i+1),st=i===0?' s="1"':'';return typeof v==='number'&&isFinite(v)?`<c r="${ref}"${st}><v>${v}</v></c>`:`<c r="${ref}"${st} t="inlineStr"><is><t>${xe(v==null?'':v)}</t></is></c>`}).join('')+'</row>').join('')+'</sheetData></worksheet>';
+}
+const XSTYLES='<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="2"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/></cellXfs></styleSheet>';
+function makeXlsx(sheets){
+  const E=new TextEncoder(),X='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>',NS='http://schemas.openxmlformats.org/spreadsheetml/2006/main',RN='http://schemas.openxmlformats.org/officeDocument/2006/relationships';
+  const files=[
+    {n:'[Content_Types].xml',d:X+`<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>${sheets.map((s,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join('')}</Types>`},
+    {n:'_rels/.rels',d:X+`<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="${RN}/officeDocument" Target="xl/workbook.xml"/></Relationships>`},
+    {n:'xl/workbook.xml',d:X+`<workbook xmlns="${NS}" xmlns:r="${RN}"><sheets>${sheets.map((s,i)=>`<sheet name="${xe(s.name.replace(/[\[\]:*?\/\\]/g,'').slice(0,31))}" sheetId="${i+1}"${s.hidden?' state="hidden"':''} r:id="rId${i+1}"/>`).join('')}</sheets></workbook>`},
+    {n:'xl/_rels/workbook.xml.rels',d:X+`<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${sheets.map((s,i)=>`<Relationship Id="rId${i+1}" Type="${RN}/worksheet" Target="worksheets/sheet${i+1}.xml"/>`).join('')}<Relationship Id="rId${sheets.length+1}" Type="${RN}/styles" Target="styles.xml"/></Relationships>`},
+    {n:'xl/styles.xml',d:X+XSTYLES},
+    ...sheets.map((s,i)=>({n:`xl/worksheets/sheet${i+1}.xml`,d:sheetXml(s.rows)}))
+  ].map(f=>({n:f.n,d:E.encode(f.d)}));
+  return zipFiles(files);
+}
+/* ===== 自動備份（IndexedDB 快照）===== */
+const autoOn=()=>PREF.autoBk!==false;
+function setAutoBk(b){PREF.autoBk=b;savePref();openPrefs()}
+const bkOpen=()=>new Promise((res,rej)=>{if(!window.indexedDB)return rej();const q=indexedDB.open('mj_backup_v1',1);q.onupgradeneeded=()=>q.result.createObjectStore('s',{keyPath:'id'});q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error)});
+const bkAll=async()=>{const db=await bkOpen();return new Promise((res,rej)=>{const r=db.transaction('s').objectStore('s').getAll();r.onsuccess=()=>res(r.result.sort((a,b)=>b.t-a.t));r.onerror=()=>rej(r.error)})};
+async function bkTx(fn){const db=await bkOpen();return new Promise((res,rej)=>{const t=db.transaction('s','readwrite');fn(t.objectStore('s'));t.oncomplete=res;t.onerror=()=>rej(t.error)})}
+async function snapshot(kind){
+  try{
+    const all=await bkAll(),now=Date.now(),last=all.find(x=>x.kind==='auto');
+    const id=(kind==='auto'&&last&&now-last.t<30*6e4)?last.id:uid();
+    await bkTx(s=>s.put({id,t:now,kind,games:S.games.length,players:S.players.length,data:JSON.stringify(S),pf:JSON.stringify(prefsClean())}));
+    const left=await bkAll(),drop=[];['auto','manual'].forEach(k=>left.filter(x=>x.kind===k).slice(10).forEach(x=>drop.push(x.id)));
+    if(drop.length)await bkTx(s=>drop.forEach(i=>s.delete(i)));
+    return true;
+  }catch(e){return false}
+}
+async function manualBk(){const ok=await snapshot('manual');toast(ok?'已備份':'此瀏覽器無法使用自動備份');if($('sc'))bkRender()}
+const fmtT=t=>{const d=new Date(t),p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`};
+async function bkRender(){
+  const box=$('bkList');if(!box)return;
+  let all=[];try{all=await bkAll()}catch(e){box.innerHTML=`<div class="text-xs text-slate-400">${L('此瀏覽器不支援自動備份，請使用匯出備份。','Auto backup is not available in this browser. Please use Export backup.','このブラウザでは自動バックアップを使えません。バックアップ出力をお使いください。')}</div>`;tr(box);return}
+  if(!$('bkList'))return;
+  box.innerHTML=all.length?all.map(x=>`<div class="flex items-center gap-2 py-2 border-t border-slate-100"><div class="min-w-0 flex-1"><div class="text-sm font-bold">${fmtT(x.t)}</div><div class="text-xs text-slate-400">${x.kind==='auto'?L('自動','Auto','自動'):L('手動','Manual','手動')} · ${L(`${x.games} 場`,`${x.games} games`,`${x.games}局`)} · ${L(`${x.players} 人`,`${x.players} players`,`${x.players}人`)}</div></div><button onclick="bkRestore('${x.id}')" class="gbtn h-10 px-3 text-sm active:scale-95 transition">${L('還原','Restore','復元')}</button><button onclick="bkExport('${x.id}')" class="h-10 px-3 text-sm font-bold rounded border border-slate-200 text-slate-600 active:scale-95 transition">${L('匯出','Export','出力')}</button></div>`).join(''):`<div class="text-xs text-slate-400">${L('還沒有備份。新增一場紀錄就會自動建立。','No backups yet. One is created when you add a game.','まだバックアップがありません。対局を追加すると自動で作成されます。')}</div>`;
+  tr(box);
+}
+async function bkRestore(id){
+  const it=(await bkAll()).find(x=>x.id===id);if(!it)return;
+  if(!confirm(L(`還原到 ${fmtT(it.t)} 的備份（${it.games} 場、${it.players} 人）？\n目前資料會先自動備份一份。`,`Restore the backup from ${fmtT(it.t)} (${it.games} games, ${it.players} players)?\nCurrent data is backed up first.`,`${fmtT(it.t)} のバックアップ（${it.games}局・${it.players}人）に復元しますか？\n現在のデータは先に自動バックアップされます。`)))return;
+  await snapshot('auto');
+  try{S=sanitizeData(JSON.parse(it.data));saveNow();let ap=false;if(it.pf)try{ap=applyPrefs(JSON.parse(it.pf))}catch(e){}D=newD();selDay=null;render();bkRender();toast(ap?'匯入完成（含設定）':'匯入完成')}catch(e){alert('檔案格式不正確，無法匯入')}
+}
+async function bkExport(id){const it=(await bkAll()).find(x=>x.id===id);if(!it)return;out(`mahjong-backup-${it.t?fmtT(it.t).slice(0,10).replace(/-/g,''):stamp()}.json`,JSON.stringify({app:'mahjong',v:2,exported:new Date(it.t).toISOString(),data:JSON.parse(it.data),prefs:it.pf?JSON.parse(it.pf):undefined}),'application/json')}
+
+/* ===== Excel 匯入（匯出的 Excel 也能當備份）===== */
+async function unzipText(buf){
+  const u8=new Uint8Array(buf),dv=new DataView(buf),dec=new TextDecoder(),files={};
+  let e=u8.length-22;while(e>=0&&dv.getUint32(e,true)!==0x06054b50)e--;
+  if(e<0)throw 0;
+  const n=dv.getUint16(e+10,true);let p=dv.getUint32(e+16,true);
+  for(let i=0;i<n;i++){
+    const method=dv.getUint16(p+10,true),csz=dv.getUint32(p+20,true),nl=dv.getUint16(p+28,true),xl=dv.getUint16(p+30,true),cl=dv.getUint16(p+32,true),off=dv.getUint32(p+42,true);
+    const name=dec.decode(u8.subarray(p+46,p+46+nl));
+    p+=46+nl+xl+cl;
+    if(!/\.(xml|rels)$/.test(name))continue;
+    const ds=off+30+dv.getUint16(off+26,true)+dv.getUint16(off+28,true);
+    let data=u8.subarray(ds,ds+csz);
+    if(method===8)data=new Uint8Array(await new Response(new Blob([data]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).arrayBuffer());
+    else if(method!==0)throw 0;
+    files[name]=dec.decode(data);
+  }
+  return files;
+}
+const xd=s=>s.replace(/&(#x?[0-9a-fA-F]+|amp|lt|gt|quot|apos);/g,(m,k)=>k==='amp'?'&':k==='lt'?'<':k==='gt'?'>':k==='quot'?'"':k==='apos'?"'":String.fromCodePoint(k[1]==='x'||k[1]==='X'?parseInt(k.slice(2),16):parseInt(k.slice(1),10)));
+const attr=(s,n)=>{const m=s.match(new RegExp('(?:^|\\s)'+n+'="([^"]*)"'));return m?xd(m[1]):null};
+const tText=x=>[...x.matchAll(/<t(?:\s[^>]*)?>([\s\S]*?)<\/t>/g)].map(m=>xd(m[1])).join('');
+function sheetRows(xml,shared){
+  const rows=[];
+  for(const rm of xml.matchAll(/<row\b[^>]*?(?:\/>|>([\s\S]*?)<\/row>)/g)){
+    const row=[];
+    for(const cm of (rm[1]||'').matchAll(/<c\b([^>]*?)(?:\/>|>([\s\S]*?)<\/c>)/g)){
+      const ref=attr(cm[1],'r')||'',t=attr(cm[1],'t'),inner=cm[2]||'';
+      const col=[...ref.replace(/\d+/g,'')].reduce((a,ch)=>a*26+ch.charCodeAt(0)-64,0)-1;
+      let v=null;
+      if(t==='inlineStr')v=tText(inner);
+      else{const vm=inner.match(/<v>([\s\S]*?)<\/v>/);if(vm){const raw=xd(vm[1]);v=t==='s'?shared[+raw]:(t==='str'||t==='e'||t==='b')?raw:+raw}}
+      if(col>=0)row[col]=v;
+    }
+    rows.push(row);
+  }
+  return rows;
+}
+async function readXlsxBackup(f){
+  const files=await unzipText(await f.arrayBuffer());
+  const wb=files['xl/workbook.xml'],rel=files['xl/_rels/workbook.xml.rels'];if(!wb||!rel)throw 0;
+  const tg={};for(const m of rel.matchAll(/<Relationship\b([^>]*)>/g))tg[attr(m[1],'Id')]=attr(m[1],'Target');
+  const ss=files['xl/sharedStrings.xml'];
+  const shared=ss?[...ss.matchAll(/<si\b[^>]*>([\s\S]*?)<\/si>/g)].map(m=>tText(m[1].replace(/<rPh\b[\s\S]*?<\/rPh>/g,''))):[];
+  const sheets=[...wb.matchAll(/<sheet\b([^>]*)>/g)].map(m=>{const t=tg[attr(m[1],'r:id')]||'';return{name:attr(m[1],'name'),path:t.startsWith('/')?t.slice(1):'xl/'+t}});
+  const rowsOf=n=>{const s=typeof n==='number'?sheets[n]:sheets.find(x=>x.name===n);return s&&files[s.path]?sheetRows(files[s.path],shared):null};
+  const gr=rowsOf(0);if(!gr)throw 0;
+  const players=[],pm={};
+  const mk=(name,color,photo)=>{const p={id:uid(),name,color:color||COLORS[players.length%COLORS.length]};if(photo)p.photo=photo;players.push(p);pm[name]=p;return p};
+  (rowsOf('_players')||[]).forEach(r=>{if(r[0]!=null&&r[0]!=='')mk(String(r[0]),r[1]?String(r[1]):'',r.slice(2).filter(x=>x!=null&&x!=='').join(''))});
+  const vn=[];const addV=n=>{if(n&&!vn.includes(n))vn.push(n)};
+  (rowsOf('_venues')||[]).forEach(r=>addV(r[0]==null?'':String(r[0])));
+  const dstr=v=>typeof v==='number'?new Date(Math.round((v-25569)*864e5)).toISOString().slice(0,10):String(v==null?'':v).trim().slice(0,10);
+  const debtOf=(s,a)=>{const t=String(s==null?'':s).trim();if(!t||a>=0)return{};if(/未付|unpaid|未払/i.test(t))return{debt:-a,paid:0};if(/已還|paid|返済/i.test(t))return{debt:-a,paid:1};return{}};
+  const games=[];
+  gr.slice(1).forEach(r=>{
+    const date=dstr(r[0]);if(!/^\d{4}-\d{2}-\d{2}$/.test(date))return;
+    const res=[];
+    for(let i=0;i<4;i++){
+      const nm=r[4+i*2],am=r[5+i*2];
+      if(nm==null||String(nm).trim()==='')continue;
+      if(am==null||am===''){res.push({id:'unk',name:'未知',color:'#94a3b8',amt:0,unk:1});continue}
+      const name=String(nm).trim(),p=pm[name]||mk(name);
+      res.push({id:p.id,name:p.name,color:p.color,amt:+am||0,...debtOf(r[12+i],+am||0)});
+    }
+    if(res.length!==4)return;
+    const v=r[1]==null?'':String(r[1]).trim();addV(v);
+    games.push({id:uid(),date,vid:'',vname:v,rounds:parseInt(r[2])||0,fee:parseFloat(r[3])||0,res});
+  });
+  if(!games.length)throw 0;
+  const venues=vn.map(n=>({id:uid(),name:n}));
+  games.forEach(g=>{const v=venues.find(x=>x.name===g.vname);if(v)g.vid=v.id});
+  const prefs={};(rowsOf('_prefs')||[]).forEach(r=>{if(r[0]!=null&&r[1]!=null)prefs[String(r[0])]=String(r[1])});
+  return {players,games,venues,prefs};
+}
+
+function expXlsx(){
+  if(!S.games.length)return alert('尚無紀錄可分享');
+  const fee=feeOn(),un=L('未知','Unknown','不明');
+  const games=[...S.games].sort((a,b)=>a.date.localeCompare(b.date)||a.id.localeCompare(b.id));
+  const feeH=fee?[L('東錢','Table fee','場代')]:[],feeV=g=>fee?[g.fee||'']:[];
+  const f1H=[L('東錢','Table fee','場代')],f1V=g=>[g.fee||''];
+  const s1=[[L('日期','Date','日付'),L('場所','Venue','場所'),L('將數','Rounds','半荘数'),...f1H,...[1,2,3,4].flatMap(i=>[L(`玩家${i}`,`Player ${i}`,`プレイヤー${i}`),L(`金額${i}`,`Amount ${i}`,`金額${i}`)]),...[1,2,3,4].map(i=>L(`欠款${i}`,`Debt ${i}`,`ツケ${i}`))],
+    ...games.map(g=>[g.date,g.vname||'',g.rounds||'',...f1V(g),...[0,1,2,3].flatMap(i=>{const r=g.res[i];return r?(r.unk?[un,'']:[r.name,r.amt]):['','']}),...[0,1,2,3].map(i=>{const r=g.res[i];return r&&r.debt?(r.paid?L('已還','Paid','返済済'):L('未付','Unpaid','未払い')):''})])];
+  const rs=r=>r.amt>0?L('勝','Win','勝'):r.amt<0?L('負','Lose','負'):L('和','Draw','分');
+  const s2=[[L('日期','Date','日付'),L('場所','Venue','場所'),L('將數','Rounds','半荘数'),...feeH,L('玩家','Player','プレイヤー'),L('金額','Amount','金額'),L('結果','Result','結果')],
+    ...games.flatMap(g=>g.res.filter(r=>!r.unk).map(r=>[g.date,g.vname||'',g.rounds||'',...feeV(g),r.name,r.amt,rs(r)]))];
+  const st=stats().sort((a,b)=>b.sum-a.sum);
+  const s3=[[L('名次','Rank','順位'),L('玩家','Player','プレイヤー'),L('場次','Games','対局数'),L('勝','Wins','勝'),L('負','Losses','負'),L('和','Draws','分'),L('勝率 %','Win rate %','勝率 %'),L('累積金額','Total','累計')],...st.map((s,i)=>[i+1,s.p.name,s.n,s.w,s.l,s.d,rateOf(s),s.sum])];
+  const M={};
+  S.games.forEach(g=>g.res.forEach(r=>{if(r.unk)return;const k=g.date.slice(0,7),id=k+'|'+r.id,o=M[id]=M[id]||{k,n:r.name,v:0,c:0};o.v=r2(o.v+r.amt);o.c++}));
+  const s4=[[L('月份','Month','月'),L('玩家','Player','プレイヤー'),L('勝負總和','Net total','収支合計'),L('場次','Games','対局数')],...Object.values(M).sort((a,b)=>a.k.localeCompare(b.k)||b.v-a.v).map(o=>[o.k,o.n,o.v,o.c])];
+  const sheets=[{name:L('每場紀錄','Games','対局記録'),rows:s1},{name:L('逐人明細','By player','個人別'),rows:s2},{name:L('排行','Ranking','ランキング'),rows:s3},{name:L('每月結算','Monthly','月別'),rows:s4}];
+  if(fee){
+    const FM={};S.games.forEach(g=>{if(!g.fee)return;const k=g.date.slice(0,7),o=FM[k]=FM[k]||{v:0,c:0};o.v=r2(o.v+g.fee);o.c++});
+    const fk=Object.keys(FM).sort();
+    sheets.push({name:L('東錢','Table fee','場代'),rows:[[L('月份','Month','月'),L('東錢總和','Table fee total','場代合計'),L('場數','Games','対局数')],...fk.map(k=>[k,FM[k].v,FM[k].c]),...(fk.length?[[L('總計','Total','合計'),r2(fk.reduce((a,k)=>a+FM[k].v,0)),fk.reduce((a,k)=>a+FM[k].c,0)]]:[])]});
+  }
+  const chunk=s=>{const a=[];for(let i=0;i<s.length;i+=30000)a.push(s.slice(i,i+30000));return a};
+  sheets.push({name:'_players',hidden:true,rows:S.players.map(p=>[p.name,p.color,...chunk(p.photo||'')])});
+  sheets.push({name:'_venues',hidden:true,rows:S.venues.map(v=>[v.name])});
+  sheets.push({name:'_prefs',hidden:true,rows:Object.entries(prefsClean()).map(([k,v])=>[k,String(v)])});
+  return out(`mahjong-${stamp()}.xlsx`,makeXlsx(sheets),'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+}
+
+
+/* 紀錄卡片 */
+function card(g){
+  return `<div class="${CARD} p-4 mb-3"><div class="flex items-start justify-between mb-3"><div><b class="text-xl">${g.date}</b>${(()=>{const a=[];if(g.vname)a.push('📍 '+esc(g.vname));if(g.rounds)a.push('🎯 '+g.rounds+' 將');if(g.fee&&feeOn())a.push(L('🏮 東錢 ','🏮 Fee ','🏮 場代 ')+g.fee.toLocaleString());return a.length?`<div class="text-base font-semibold text-indigo-500 mt-1">${a.join('　')}</div>`:''})()}</div><div class="flex gap-2"><button onclick="editGame('${g.id}')" class="h-11 px-4 rounded-xl bg-indigo-50 text-indigo-600 text-base font-bold ${BTN}">編輯</button><button onclick="delGame('${g.id}')" class="h-11 px-4 rounded-xl bg-red-50 text-red-500 text-base font-bold ${BTN}">刪除</button></div></div><div class="grid grid-cols-2 gap-2">${g.res.map((r,ri)=>`<div class="flex items-center gap-2 rounded-2xl bg-slate-50 px-3 py-2.5 text-base font-semibold"><span class="w-2.5 h-2.5 rounded-full shrink-0" style="background:${r.color}"></span><span class="truncate">${esc(r.name)}</span>${r.debt&&debtOn()?`<button onclick="payDebt('${g.id}',${ri})" class="debt-pill ${r.paid?'paid':''}">${r.paid?L('已還','Paid','返済済'):L('欠款','Owes','未払い')}</button>`:''}<b class="ml-auto text-lg ${r.unk?'text-slate-300':cls(r.amt)}">${r.unk?'—':money(r.amt)}</b></div>`).join('')}</div></div>`;
+}
+function delGame(id){if(!confirm('確定刪除這筆紀錄？'))return;S.games=S.games.filter(g=>g.id!==id);if(D.eid===id)D=newD();save();render();toast('已刪除')}
+const sorted=()=>[...S.games].sort((a,b)=>b.date.localeCompare(a.date)||b.id.localeCompare(a.id));
+function editGame(id){
+  const g=S.games.find(x=>x.id===id);D=newD();D.eid=id;D.date=g.date;D.vid=g.vid||'';D.vn=g.vname||'';
+  D.rounds=g.rounds?String(g.rounds):'';D.fee=g.fee?String(g.fee):'';g.res.forEach((r,i)=>{D.sel.push(r.id);if(!r.unk){D.snap[r.id]={name:r.name,color:r.color};D.vals[i]=String(Math.abs(r.amt));D.sg[i]=r.amt<0?-1:1;D.debt[i]=r.debt?1:0;D.paid[i]=r.paid?1:0}});
+  tab=1;render();scrollTo(0,0);
+}
+
+/* 備份與分享 */
+async function out(name,text,mime){
+  const f=new File([text],name,{type:mime});
+  if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f],title:name});return}catch(e){if(e.name==='AbortError')return}}
+  const a=document.createElement('a');a.href=URL.createObjectURL(f);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1e4);
+}
+const stamp=()=>today.replace(/-/g,'');
+const expBackup=async()=>{await out(`mahjong-backup-${stamp()}.json`,JSON.stringify({app:'mahjong',v:2,exported:new Date().toISOString(),data:S,prefs:prefsClean()}),'application/json');PREF.lastBackup=nowStr();savePref();if($('sc'))openPrefs()};
+function impFile(e){
+  const f=e.files[0];if(!f)return;
+  const isX=/\.xlsx$/i.test(f.name)||/spreadsheet/.test(f.type);
+  (isX?readXlsxBackup(f):f.text().then(t=>{const d=JSON.parse(t);return d.data?Object.assign({},d.data,{prefs:d.prefs}):d})).then(applyImport).catch(()=>alert('檔案格式不正確，無法匯入'));
+  e.value='';
+}
+async function applyImport(d){
+  const pf=d&&d.prefs;d=sanitizeData(d);
+  if(!confirm(L(`備份內有 ${d.games.length} 場紀錄、${d.players.length} 位人員。\n匯入會「取代」目前所有資料，確定嗎？`,`The backup has ${d.games.length} games and ${d.players.length} players.\nImporting will REPLACE all current data. Continue?`,`バックアップには ${d.games.length} 局・${d.players.length} 人分のデータがあります。\nインポートすると現在のデータはすべて置き換わります。続けますか？`)))return;
+  if(autoOn())await snapshot('auto');
+  S=d;saveNow();const ap=applyPrefs(pf);D=newD();selDay=null;render();toast(ap?'匯入完成（含設定）':'匯入完成');
+}
+
+/* 1 日曆 */
+function pickDay(k){selDay=selDay===k?null:k;render();if(selDay){const e=$('d-'+selDay);if(e)e.scrollIntoView({behavior:'smooth',block:'start'})}}
+function pickM(i){cal.m=i;calPick=false;selDay=null;render()}
+function setY(y){cal.y=y;render()}
+function mv(d){cal.m+=d;if(cal.m<0){cal.m=11;cal.y--}if(cal.m>11){cal.m=0;cal.y++}selDay=null;render()}
+function goAdd(d){D=newD();D.date=d;tab=1;render()}
+function v0(){
+  const {y,m}=cal,first=new Date(y,m,1).getDay(),dim=new Date(y,m+1,0).getDate(),cnt={};
+  S.games.forEach(g=>cnt[g.date]=(cnt[g.date]||0)+1);
+  const mk=`${y}-${String(m+1).padStart(2,'0')}`,mg=S.games.filter(g=>g.date.startsWith(mk)).length;
+  const stat=(a,b,c)=>`<div class="${CARD} py-3 text-center"><div class="text-2xl font-extrabold ${c}">${a}</div><div class="text-xs text-slate-400">${b}</div></div>`;
+  const ymc={};S.games.forEach(g=>{const k=g.date.slice(0,7);ymc[k]=(ymc[k]||0)+1});
+  const ys=[...new Set([...S.games.map(g=>g.date.slice(0,4)),today.slice(0,4),String(y)])].sort().reverse();
+  const pick=`<div class="mb-3"><div class="flex items-center justify-between mb-2"><button onclick="setY(${y-1})" class="w-12 h-12 rounded-2xl bg-slate-100 text-xl ${BTN}">‹</button><b class="text-xl">${y} 年</b><button onclick="setY(${y+1})" class="w-12 h-12 rounded-2xl bg-slate-100 text-xl ${BTN}">›</button></div><div data-hs="cy" class="relative flex gap-2 overflow-x-auto pb-2 mb-2">${ys.map(v=>`<button ${+v===y?'data-sel':''} onclick="setY(${v})" class="h-10 px-4 rounded-full text-sm font-semibold shrink-0 ${BTN} ${+v===y?'bg-indigo-600 text-white':'bg-slate-100 text-slate-600'}">${v}</button>`).join('')}</div><div class="grid grid-cols-3 gap-2">${Array.from({length:12},(_,i)=>{const k=`${y}-${String(i+1).padStart(2,'0')}`,c=ymc[k];return `<button onclick="pickM(${i})" class="h-16 rounded-2xl font-bold ${BTN} ${c?'bg-gradient-to-br from-emerald-400 to-teal-500 text-white shadow':'bg-slate-50 text-slate-600'} ${i===m?'ring-2 ring-indigo-600 ring-offset-1':''}">${i+1} 月<div class="text-xs font-medium opacity-90">${c?c+' 場':'無紀錄'}</div></button>`}).join('')}</div></div>`;
+  let h=remind()+`<div class="grid grid-cols-3 gap-2 mb-3">${stat(S.games.length,'總場次','text-indigo-600')}${stat(mg,'本月場次','text-emerald-600')}${stat(S.players.length,'人員','text-fuchsia-600')}</div>`;
+  h+=`<div class="${CARD} p-3"><div class="flex items-center justify-between mb-3"><button onclick="mv(-1)" class="w-12 h-12 rounded-2xl bg-slate-100 text-xl ${BTN}">‹</button><button data-tour="calTitle" onclick="calPick=!calPick;render()" class="h-12 px-4 rounded-2xl bg-indigo-50 text-indigo-700 font-bold text-lg ${BTN}">${y} 年 ${m+1} 月 ${calPick?'▲':'▼'}</button><button onclick="mv(1)" class="w-12 h-12 rounded-2xl bg-slate-100 text-xl ${BTN}">›</button></div>${calPick?pick:''}<div class="grid grid-cols-7 gap-1.5 text-center text-xs text-slate-400 mb-1 ${calPick?'hidden':''}">${WD().map(d=>`<div>${d}</div>`).join('')}</div><div class="grid grid-cols-7 gap-1.5 ${calPick?'hidden':''}">`;
+  for(let i=0;i<first;i++)h+='<div></div>';
+  for(let d=1;d<=dim;d++){
+    const k=`${mk}-${String(d).padStart(2,'0')}`,c=cnt[k];
+    h+=`<button onclick="pickDay('${k}')" class="h-12 rounded-2xl text-sm font-semibold ${BTN} ${c?'bg-gradient-to-br from-emerald-400 to-teal-500 text-white shadow':'bg-slate-50'} ${k===today?'border-2 border-fuchsia-400':''} ${k===selDay?'ring-2 ring-indigo-600':''}">${d}${c?`<div class="text-[10px] leading-none opacity-90">${c}場</div>`:''}</button>`;
+  }
+  h+='</div></div>';
+  const ml=S.games.filter(g=>g.date.startsWith(mk)).sort((a,b)=>b.date.localeCompare(a.date)||b.id.localeCompare(a.id));
+  const byD={};ml.forEach(g=>(byD[g.date]=byD[g.date]||[]).push(g));
+  const days=Object.keys(byD);if(selDay&&selDay.startsWith(mk)&&!byD[selDay])days.push(selDay);
+  days.sort().reverse();
+  h+=`<div data-tour="monthList" class="flex items-center justify-between mt-5 mb-2 px-1"><b>${L(`${m+1} 月紀錄`,`${MON[m]} ${y} records`,`${y}年${m+1}月の記録`)}</b><span class="text-sm text-slate-400">${L(`${ml.length} 場`,`${ml.length} games`,`${ml.length}局`)}</span></div>`;
+  h+=days.length?days.map(k=>{const gs=byD[k]||[],on=k===selDay;return `<div id="d-${k}" style="scroll-margin-top:calc(env(safe-area-inset-top) + 76px)" class="rounded-3xl p-2 -mx-2 mb-2 ${on?'ring-2 ring-indigo-500 bg-indigo-50':''}"><div class="font-bold mb-2 px-1">${k} <span class="text-slate-400 font-normal text-sm">${gs.length?L(`${gs.length} 場`,`${gs.length} games`,`${gs.length}局`):'無紀錄'}</span></div>${gs.map(card).join('')}${on?`<button onclick="goAdd('${k}')" class="w-full h-12 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold shadow ${BTN}">＋ 新增此日紀錄</button>`:''}</div>`}).join(''):`<div class="${CARD} p-6 text-center text-slate-400 text-sm">${L('本月沒有紀錄','No records this month','今月の記録はありません')}</div>`;
+  return h;
+}
+
+/* 2 新增 / 編輯 */
+function tg(id){
+  const i=D.sel.indexOf(id);
+  if(i>=0)D.sel.splice(i,1);else if(D.sel.length<4)D.sel.push(id);else return alert('最多選 4 位');
+  render();
+}
+function calc(){
+  let s=0,filled=true;const ai=autoIdx();
+  D.sel.forEach((id,i)=>{
+    if(id==='unk'||i===ai)return;
+    const e=$('a'+i);if(!e)return;
+    e.value=e.value.replace(/[^\d.]/g,'');D.vals[i]=e.value;
+    const n=parseFloat(e.value);
+    if(isNaN(n))filled=false;else s+=n*D.sg[i];
+    showDebt(i,!isNaN(n)&&n>0&&D.sg[i]<0);
+    e.className=e.className.replace(/ ?text-(emerald|red)-\d+/g,'')+' '+(D.sg[i]>0?'text-emerald-600':'text-red-500');
+  });
+  const e=ai>=0?$('a'+ai):null;
+  if(e){const v=r2(-s)||0;showDebt(ai,filled&&v<0);e.value=filled?money(v):'';e.className=e.className.replace(/ ?text-(emerald|red|slate)-\d+/g,'')+' '+cls(v)}
+}
+function showDebt(i,on){const d=$('dbt'+i);if(d)d.classList.toggle('hidden',!on)}
+function tgDebt(i){D.debt[i]=D.debt[i]?0:1;D.paid[i]=0;const b=$('dbtb'+i);if(!b)return;b.className=b.className.replace(/debt-(on|off)/,D.debt[i]?'debt-on':'debt-off');b.textContent=D.debt[i]?L('✓ 欠款（未付）','✓ On credit (unpaid)','✓ ツケ（未払い）'):L('＋ 標記為欠款','＋ Mark as owed','＋ ツケにする');tr(b)}
+function payDebt(gid,i){const g=S.games.find(x=>x.id===gid);if(!g)return;const r=g.res[i];if(!r)return;r.paid=r.paid?0:1;save();render();toast(r.paid?L('已標記還款','Marked as paid','返済済にしました'):L('已改回未付','Marked unpaid','未払いに戻しました'))}
+function payAll(id){
+  if(!confirm(L('確定這位玩家的欠款全部還清？','Mark all debts of this player as paid?','このプレイヤーのツケをすべて返済済にしますか？')))return;
+  S.games.forEach(g=>g.res.forEach(r=>{if(r.id===id&&r.debt&&!r.paid)r.paid=1}));save();render();toast(L('已全部還清','All settled','全額返済しました'));
+}
+function sg(i,v){D.sg[i]=v;render();const e=$('a'+i);if(e)e.focus()}
+function addUnk(){if(D.sel.length>=4)return alert('最多選 4 位');D.sel.push('unk');render()}
+function subUnk(){const i=D.sel.lastIndexOf('unk');if(i>=0)D.sel.splice(i,1);render()}
+function cancelEdit(){D=newD();render()}
+function addGame(){
+  if(D.sel.length!=4)return alert('請點選 4 位參與人員（可選「未知」）');
+  if(D.sel.every(x=>x==='unk'))return alert('至少要有 1 位已知玩家');
+  if(!D.date)return alert('請選擇日期');
+  const ai=autoIdx(),v=[];
+  for(let i=0;i<4;i++){
+    if(D.sel[i]==='unk'||i===ai){v.push(0);continue}
+    const n=parseFloat($('a'+i).value);
+    if(isNaN(n))return alert('請輸入每位已知玩家的金額');
+    v.push(n*D.sg[i]||0);
+  }
+  if(ai>=0)v[ai]=r2(-v.reduce((a,b)=>a+b,0))||0;
+  const V=S.venues.find(x=>x.id===D.vid)||(D.vid?{id:D.vid,name:D.vn}:null);
+  const g={id:D.eid||uid(),date:D.date,vid:V?V.id:'',vname:V?V.name:'',rounds:parseInt(D.rounds)||0,fee:parseFloat(D.fee)||0,res:D.sel.map((id,i)=>{const p=pp(id);return id==='unk'?{id,name:'未知',color:p.color,amt:0,unk:1}:{id,name:p.name,color:p.color,amt:v[i],...(D.debt[i]&&v[i]<0?{debt:Math.abs(v[i]),paid:D.paid[i]?1:0}:{})}})};
+  const ed=!!D.eid;
+  if(ed){S.games[S.games.findIndex(x=>x.id===D.eid)]=g;save();D=newD()}
+  else{S.games.push(g);save();if(autoOn())snapshot('auto');D.vals=['','','',''];D.sg=[1,1,1,1];D.rounds='';D.fee='';D.debt=[0,0,0,0];D.paid=[0,0,0,0]}
+  render();scrollTo(0,0);toast(ed?'已更新紀錄':'已儲存');
+}
+function v1(){
+  if(!S.players.length)return `<div class="${CARD} p-8 text-center"><div class="text-4xl mb-2">👥</div><p class="mb-4 text-slate-500">請先新增玩家才能記錄對弈結果</p><button onclick="openSet()" class="h-14 px-6 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold ${BTN}">新增玩家</button></div>`;
+  const ed=!!D.eid,ai=autoIdx(),hu=hasU(),nu=D.sel.filter(x=>x==='unk').length;
+  const all=[...S.players,...D.sel.filter(id=>id!=='unk'&&!pl(id)).map(id=>({id,color:D.snap[id].color,name:D.snap[id].name+'(已刪除)'}))];
+  const chips=all.map(p=>{const i=D.sel.indexOf(p.id);return `<button onclick="tg('${p.id}')" class="h-12 px-4 rounded-2xl font-semibold border-2 ${BTN} ${i>=0?'text-white shadow':'bg-white'}" style="border-color:${p.color};${i>=0?'background:'+p.color:''}">${i>=0?(i+1)+'. ':''}${esc(p.name)}</button>`}).join('');
+  const uchip=`<div class="flex gap-1"><button onclick="addUnk()" class="h-12 px-4 rounded-2xl font-semibold border-2 border-slate-400 ${BTN} ${nu?'bg-slate-500 text-white':'bg-white text-slate-600'}">❓ 未知${nu?' ×'+nu:''}</button>${nu?`<button onclick="subUnk()" class="w-12 h-12 rounded-2xl bg-slate-100 font-bold text-lg ${BTN}">－</button>`:''}</div>`;
+  const vl=[...S.venues];if(D.vid&&!vl.some(x=>x.id===D.vid))vl.push({id:D.vid,name:D.vn});
+  const vchips=vl.length?vl.map(x=>`<button onclick="pickV('${x.id}')" class="h-12 px-4 rounded-2xl font-semibold border-2 border-indigo-500 ${BTN} ${D.vid===x.id?'bg-indigo-600 text-white shadow':'bg-white text-indigo-700'}">📍 ${esc(x.name)}</button>`).join(''):'<span class="text-sm text-slate-400">尚未新增場所，請點右側「管理場所」</span>';
+  const rows=D.sel.map((id,i)=>{
+    const p=pp(id),unk=id==='unk',auto=i===ai,w=D.sg[i]>0;
+    const btn=(v,t,on,c)=>`<button onclick="sg(${i},${v})" class="w-12 h-12 rounded-xl font-bold text-lg ${BTN} ${on?'text-white '+c:'bg-slate-100 text-slate-400'}">${t}</button>`;
+    const dl=debtOn()&&!unk?`<div id="dbt${i}" class="hidden mb-2 -mt-1 pl-5"><button id="dbtb${i}" onclick="tgDebt(${i})" class="h-9 px-4 text-xs font-bold ${BTN} ${D.debt[i]?'debt-on':'debt-off'}">${D.debt[i]?L('✓ 欠款（未付）','✓ On credit (unpaid)','✓ ツケ（未払い）'):L('＋ 標記為欠款','＋ Mark as owed','＋ ツケにする')}</button></div>`:'';
+    const mid=unk?'<span class="flex-1 text-sm text-slate-400 text-right pr-2">不計入金額</span>':`${auto?'<span class="w-[100px] text-center text-xs text-slate-400 shrink-0">自動計算</span>':`<div class="flex gap-1 shrink-0">${btn(1,'贏',w,'bg-emerald-500')}${btn(-1,'輸',!w,'bg-red-500')}</div>`}<input id="a${i}" ${auto?'readonly':''} inputmode="decimal" placeholder="${auto?'':'金額'}" value="${auto?'':esc(D.vals[i]||'')}" oninput="calc()" class="flex-1 min-w-0 h-12 rounded-xl border-2 border-slate-200 px-3 text-lg text-right font-bold ${auto?'bg-slate-100':''}">`;
+    return `<div class="flex items-center gap-2 mb-2"><span class="w-3 h-3 rounded-full shrink-0" style="background:${p.color}"></span><span class="w-14 truncate font-medium">${esc(p.name)}</span>${mid}</div>${dl}`;
+  }).join('');
+  const gs=sorted();
+  return `${ed?`<div class="rounded-2xl bg-amber-50 border border-amber-200 text-amber-700 text-sm px-4 py-3 mb-3">✏️ 正在編輯 ${esc(S.games.find(x=>x.id===D.eid)?.date||'')} 的紀錄，修改後請按「儲存修改」</div>`:''}
+  <div class="${CARD} p-4"><div class="flex items-center justify-between"><b class="text-lg">${ed?'✏️ 編輯紀錄':'📝 新增對弈結果'}</b>${ed?`<button onclick="cancelEdit()" class="h-10 px-4 rounded-xl bg-slate-100 text-slate-600 text-sm font-semibold ${BTN}">取消編輯</button>`:''}</div>
+  ${lb('📅 日期')}<div data-tour="date" class="relative h-16 rounded-2xl bg-slate-100 border-2 border-slate-200 flex items-center justify-center text-2xl font-extrabold text-slate-800 ${BTN}">${fmtD(D.date)}<span class="absolute right-4 text-slate-400 text-base">▾</span><input type="date" value="${D.date}" onchange="D.date=this.value;render()" class="absolute inset-0 w-full h-full opacity-0"></div>
+  <div class="flex items-center justify-between mt-4 mb-2"><span class="text-sm font-semibold text-slate-500">📍 對弈場所（可不選）</span><button onclick="openSet('venue')" class="h-10 px-3 rounded-xl bg-slate-100 text-sm font-medium ${BTN}">管理場所</button></div><div class="flex flex-wrap gap-2">${vchips}</div>
+  ${lb('🎯 打了幾將（可不填）')}<input inputmode="numeric" value="${esc(D.rounds)}" placeholder="例如 8" oninput="setR(this)" class="w-full h-12 rounded-xl border-2 border-slate-200 px-3 text-lg">
+  ${feeOn()?lb(L('🏮 東錢（可不填）','🏮 Table fee (optional)','🏮 場代（任意）'))+`<input data-tour="fee" inputmode="decimal" value="${esc(D.fee)}" placeholder="${L('例如 100','e.g. 100','例 100')}" oninput="setF(this)" class="w-full h-12 rounded-xl border-2 border-slate-200 px-3 text-lg">`:''}
+  ${lb(`👥 參與人員（${D.sel.length}/4）　<span class="font-normal text-slate-400">不確定的人可選「未知」</span>`)}<div data-tour="players" class="flex flex-wrap gap-2">${chips}${uchip}</div>
+  ${D.sel.length?`${lb('💰 輸贏金額　<span class="font-normal text-slate-400">'+(hu?'有未知玩家：只記錄已知玩家，不自動結算':(sum4On()?'先點「贏／輸」再輸入，第 4 位自動計算':'先點「贏／輸」再輸入，每位金額都自行輸入'))+'</span>')}${rows}`:''}
+  <button data-tour="save" onclick="addGame()" class="w-full h-14 mt-4 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold text-lg shadow-lg shadow-indigo-200 ${BTN}">${ed?'儲存修改':'儲存這場'}</button></div>
+  <div class="font-bold mt-5 mb-2">所有紀錄（${gs.length} 場）</div>
+  ${gs.slice(0,lim).map(card).join('')||'<p class="text-center text-slate-400 py-4">尚無紀錄</p>'}
+  ${gs.length>lim?`<button onclick="lim+=30;render()" class="w-full h-12 rounded-2xl bg-white shadow-sm font-medium ${BTN}">載入更多</button>`:''}`;
+}
+
+/* 統計 */
+function stats(y){
+  return S.players.map(p=>{
+    let n=0,w=0,l=0,sum=0;
+    S.games.forEach(g=>{if(y&&!g.date.startsWith(y))return;g.res.forEach(r=>{if(r.id!==p.id)return;n++;sum+=r.amt;if(r.amt>0)w++;else if(r.amt<0)l++})});
+    return {p,n,w,l,d:n-w-l,sum:r2(sum)};
+  });
+}
+
+/* 3 勝率 */
+function v2(){
+  const mg=PREF.minGames||0,st=stats().filter(s=>s.n>mg).sort((a,b)=>{const ra=a.n?a.w/a.n:-1,rb=b.n?b.w/b.n:-1;return rb-ra||b.n-a.n||b.sum-a.sum});
+  const note=mg>0?`<div class="text-xs text-slate-400 mb-2 px-1">${L(`已隱藏參與 ${mg} 場以內的玩家（可在設定頁調整）`,`Players with ${mg} games or fewer are hidden (change in Settings)`,`${mg}局以下のプレイヤーは非表示（設定で変更できます）`)}</div>`:'';
+  if(!S.games.length||!S.players.length)return empty;
+  if(!st.length)return note+empty;
+  return pageHead(L('勝率','Win Rate','勝率'),L('依勝率由高到低','Highest first','勝率の高い順'))+note+st.map(({p,n,w,l,d,sum},i)=>{
+    const rate=n?Math.round(w/n*1000)/10:0,cell=(a,b,c)=>`<div class="rounded-2xl bg-slate-50 py-2.5"><b class="block text-lg ${c}">${a}</b>${b}</div>`;
+    return `<div ${i==0?'data-tour="wr"':''} style="--i:${i}" class="${CARD} wr-card p-4 mb-3"><div class="flex items-center gap-3 mb-3"><span class="w-9 text-center text-2xl font-bold text-slate-400">${['🥇','🥈','🥉'][i]||i+1}</span>${av(p.name,p.color,p.photo,64,p.id)}<b class="text-2xl truncate">${esc(p.name)}</b><div class="ml-auto text-right"><div class="cu text-3xl font-extrabold" style="color:${p.color}">${rate}%</div><div class="text-sm text-slate-400">勝率</div></div></div><div class="h-2.5 bg-slate-100 rounded-full overflow-hidden mb-3"><div class="gr-x h-full rounded-full" style="width:${rate}%;background:${p.color}"></div></div><div class="grid grid-cols-4 gap-2 text-center text-sm font-semibold text-slate-400">${cell(n,'場次'+(d?'・和'+d:''),'text-slate-700')}${cell(w,'勝','text-emerald-600')}${cell(l,'負','text-red-500')}${cell(money(sum),'勝負和',cls(sum))}</div></div>`;
+  }).join('');
+}
+
+/* 4 圖表：每月勝負總和 */
+function v3(){
+  if(!S.games.length||!S.players.length)return empty;
+  if(!pl(chartP))chartP=S.players[0].id;
+  const ys=[...new Set(S.games.map(g=>g.date.slice(0,4)))].sort().reverse();
+  if(chartY!=='all'&&!ys.includes(chartY))chartY='all';
+  const inY=g=>chartY==='all'||g.date.startsWith(chartY);
+  const p=pl(chartP),M={};let tot=0;
+  S.games.forEach(g=>g.res.forEach(r=>{if(r.id!==chartP||!inY(g))return;const k=g.date.slice(0,7);M[k]=r2((M[k]||0)+r.amt);tot+=r.amt}));
+  const ms=Object.keys(M).sort(),mx=Math.max(1,...ms.map(k=>Math.abs(M[k])));
+  let best=null,worst=null,pb=null,pw=null;
+  S.games.forEach(g=>g.res.forEach(r=>{const o={name:r.name,amt:r.amt,date:g.date};if(r.amt>0&&(!best||r.amt>best.amt))best=o;if(r.amt<0&&(!worst||r.amt<worst.amt))worst=o;if(r.id===chartP&&inY(g)){if(r.amt>0&&(!pb||r.amt>pb.amt))pb=o;if(r.amt<0&&(!pw||r.amt<pw.amt))pw=o}}));
+  const FM={};let ftot=0,fn=0;const fl=[];
+  S.games.forEach(g=>{if(!g.fee||!inY(g))return;const k=g.date.slice(0,7);FM[k]=r2((FM[k]||0)+g.fee);ftot=r2(ftot+g.fee);fn++;fl.push(g)});
+  const fk=Object.keys(FM).sort(),fmx=Math.max(1,...fk.map(k=>FM[k]));
+  const feeCard=`<div data-tour="feeCard" class="${CARD} p-4 mb-4"><div class="flex items-end justify-between mb-3"><div><div class="text-xs text-slate-500">${L('🏮 東錢總和','🏮 Table fee total','🏮 場代合計')} · ${chartY==='all'?L('歷年','All time','通算'):chartY+L(' 年','','年')}</div><b class="cu text-3xl text-amber-600">${ftot.toLocaleString()}</b></div><span class="text-xs text-slate-400">${L(`${fn} 場有收`,`${fn} games`,`${fn}局`)}</span></div>${fk.length?fk.map((k,ix)=>`<div style="--i:${ix}" class="flex items-center gap-2 mb-1.5 text-sm"><span class="w-14 text-slate-500 shrink-0">${k.slice(2).replace('-','/')}</span><div class="flex-1 h-3 rounded-full bg-slate-100 overflow-hidden"><div class="gr-x h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-500" style="width:${FM[k]/fmx*100}%"></div></div><b class="w-20 text-right">${FM[k].toLocaleString()}</b></div>`).join(''):`<div class="text-sm text-slate-400 py-3 text-center">${L('此年度無東錢紀錄','No table fee records','場代の記録なし')}</div>`}${fl.length?`<div class="mt-3 pt-3 border-t border-slate-100 text-xs text-slate-500 max-h-40 overflow-y-auto">${fl.sort((a,b)=>b.date.localeCompare(a.date)).map(g=>`<div class="flex justify-between py-1"><span>${g.date}${g.vname?' · '+esc(g.vname):''}</span><b class="text-slate-700">${g.fee.toLocaleString()}</b></div>`).join('')}</div>`:''}</div>`;
+  const chips=S.players.map(q=>`<button data-pid="${q.id}" ${q.id===chartP?'data-sel':''} onclick="pickChart('${q.id}')" class="h-10 px-4 rounded-full text-sm font-semibold shrink-0 border-2 ${BTN} ${q.id===chartP?'text-white':'bg-white'}" style="border-color:${q.color};${q.id===chartP?'background:'+q.color:''}">${esc(q.name)}</button>`).join('');
+  const cols=ms.map((k,ix)=>{const v=M[k],h=Math.abs(v)/mx*100;return `<div class="flex flex-col items-center shrink-0 w-14" style="--i:${ix}"><div class="text-[11px] font-bold h-5 ${cls(v)}">${money(v)}</div><div class="h-24 w-full flex items-end justify-center">${v>0?`<div class="gr-up w-8 rounded-t-lg bg-gradient-to-t from-emerald-500 to-emerald-300" style="height:${h}%"></div>`:''}</div><div class="h-24 w-full flex items-start justify-center border-t border-slate-300">${v<0?`<div class="gr-dn w-8 rounded-b-lg bg-gradient-to-b from-red-500 to-red-300" style="height:${h}%"></div>`:''}</div><div class="text-xs text-slate-500 mt-1">${k.slice(2).replace('-','/')}</div></div>`}).join('');
+  let cum=0;const pts=ms.map(k=>(cum=r2(cum+M[k]),cum));
+  const lineCard=pts.length>=2?(()=>{const W=320,H=140,px=16,py=18,mn=Math.min(0,...pts),mxv=Math.max(0,...pts),rg=(mxv-mn)||1,n=pts.length;
+    const X=i=>(px+i*(W-px*2)/(n-1)),Y=v=>(py+(mxv-v)/rg*(H-py*2));
+    const d=pts.map((v,i)=>(i?'L':'M')+X(i).toFixed(1)+' '+Y(v).toFixed(1)).join(' ');
+    const area=d+` L${X(n-1).toFixed(1)} ${Y(0).toFixed(1)} L${X(0).toFixed(1)} ${Y(0).toFixed(1)} Z`;
+    return `<div class="${CARD} p-4 mb-3"><div class="flex items-end justify-between mb-2"><div class="text-xs text-slate-500">${L('累積走勢','Cumulative trend','累計の推移')}</div><b class="text-lg ${cls(pts[n-1])}">${money(pts[n-1])}</b></div><svg viewBox="0 0 ${W} ${H}" class="w-full" role="img" aria-label="${L('累積走勢','Cumulative trend','累計の推移')}"><line x1="${px}" x2="${W-px}" y1="${Y(0).toFixed(1)}" y2="${Y(0).toFixed(1)}" stroke="currentColor" stroke-dasharray="3 5" opacity=".35" class="text-slate-400"/><path class="ln-area" d="${area}"/><path class="ln" pathLength="1" d="${d}"/>${pts.map((v,i)=>`<circle class="ln-dot" style="animation-delay:${(.3+i/(n-1)*1.3).toFixed(2)}s" cx="${X(i).toFixed(1)}" cy="${Y(v).toFixed(1)}" r="3.4"/>`).join('')}</svg><div class="flex justify-between text-xs text-slate-400 mt-1"><span>${ms[0].slice(2).replace('-','/')}</span><span>${ms[n-1].slice(2).replace('-','/')}</span></div></div>`})():'';
+  const rec=(t,o,c)=>`<div class="${CARD} p-4"><div class="text-xs text-slate-500">${t}</div>${o?`<b class="block text-lg mt-1 truncate">${esc(o.name)}</b><b class="text-xl ${c}">${money(o.amt)}</b><div class="text-xs text-slate-400 mt-1">${o.date}</div>`:'<div class="text-slate-400 mt-2">無資料</div>'}</div>`;
+  return pageHead(L('圖表','Charts','グラフ'),L('每月勝負總和','Monthly net total','月別収支'))+`<div id="chartChips" data-hs="chart" class="relative flex gap-2 overflow-x-auto pb-1 -mx-3 px-3">${chips}</div>
+  <div class="text-xs text-slate-400 mb-2 px-1">${L('💡 長按人員名稱後左右拖曳，可調整順序','💡 Long-press a player and drag to reorder','💡 長押しして左右にドラッグで並べ替え')}</div>
+  <div data-hs="chartY" class="relative flex gap-2 overflow-x-auto pb-3 -mx-3 px-3 -mt-1">${['all',...ys].map(v=>`<button ${chartY===v?'data-sel':''} onclick="chartY='${v}';render()" class="h-10 px-5 rounded-full text-sm font-semibold shrink-0 ${BTN} ${chartY===v?'bg-indigo-600 text-white shadow':'bg-white text-slate-600 border border-slate-200'}">${v==='all'?'歷年':v+' 年'}</button>`).join('')}</div>
+  <div data-tour="monthChart" class="${CARD} p-4 mb-3"><div class="flex items-end justify-between mb-4"><div><div class="text-xs text-slate-500">${L(`${esc(p.name)} ${chartY==='all'?'歷年':chartY+' 年'}累積總和`,`${esc(p.name)} ${chartY==='all'?'all-time':chartY} total`,`${esc(p.name)} ${chartY==='all'?'通算':chartY+'年'}累計`)}</div><b class="cu text-3xl ${cls(r2(tot))}">${money(r2(tot))}</b></div><span class="text-xs text-slate-400">每月勝負總和</span></div><div class="overflow-x-auto"><div class="flex gap-3 w-max min-w-full justify-around pb-1">${cols||'<div class="py-10 text-slate-400 text-sm w-full text-center">此年度無資料</div>'}</div></div></div>
+  ${lineCard}${feeOn()?feeCard:''}<div class="font-bold mb-2 px-1">${L(`${esc(p.name)} ${chartY==='all'?'':chartY+' 年'}的單場紀錄`,`${esc(p.name)}'s single-game records${chartY==='all'?'':' ('+chartY+')'}`,`${esc(p.name)}の1局記録${chartY==='all'?'':'（'+chartY+'年）'}`)}</div><div class="grid grid-cols-2 gap-3 mb-4">${rec('🏅 單場贏最多',pb,'text-emerald-600')}${rec('💸 單場輸最多',pw,'text-red-500')}</div>
+  <div class="font-bold mb-2 px-1">全體單場紀錄</div><div class="grid grid-cols-2 gap-3">${rec('🏅 單場贏最多',best,'text-emerald-600')}${rec('💸 單場輸最多',worst,'text-red-500')}</div>`;
+}
+
+/* 5 排行 */
+function rankList(y){
+  const gs=S.games.filter(g=>!y||g.date.startsWith(y));
+  const last=[...gs].sort((a,b)=>a.date.localeCompare(b.date)||a.id.localeCompare(b.id)).pop();
+  const calc=sk=>{const m={};S.players.forEach(p=>m[p.id]={n:0,sum:0});gs.forEach(g=>{if(g.id===sk)return;g.res.forEach(r=>{const o=m[r.id];if(!o)return;o.n++;o.sum+=r.amt})});return m};
+  const prev=last?calc(last.id):calc(null);
+  const pr=S.players.filter(p=>prev[p.id].n>0).sort((a,b)=>prev[b.id].sum-prev[a.id].sum).map(p=>p.id);
+  return stats(y).filter(s=>s.n>0).sort((a,b)=>b.sum-a.sum).map((s,i)=>{const j=pr.indexOf(s.p.id);return{...s,rank:i+1,mv:j<0?'new':j>i?'up':j<i?'down':'same'}});
+}
+const mvHTML=m=>{const c={up:['▲','#ef4444'],down:['▼','#38bdf8'],same:['➡','#e3b64b'],new:['✦','#e3b64b']}[m];return `<span class="rk-ar" style="color:${c[0]==='▲'?'#ef4444':c[1]}">${c[0]}<i>RANK</i></span>`};
+const mvInline=m=>{const c={up:['▲','#ef4444'],down:['▼','#38bdf8'],same:['−','#22c55e'],new:['✦','#e3b64b']}[m];return `<span class="mv${m==='same'?' same':''}" style="color:${c[1]}">${c[0]}</span>`};
+const rkIcon=r=>{
+  const C={1:['#fff07a','#f4a800','#9a5f00','#d6283a'],2:['#ffffff','#b9c4d0','#66727f','#2f6fe0'],3:['#ffc592','#cd7f32','#78400f','#2a9a52']}[r];if(!C)return '';
+  return `<svg viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="gc${r}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${C[0]}"/><stop offset="1" stop-color="${C[1]}"/></linearGradient></defs><path d="M3 24.5L1.6 9.2l8 6 6.4-11 6.4 11 8-6L29 24.5z" fill="url(#gc${r})" stroke="${C[2]}" stroke-width="1.4" stroke-linejoin="round"/><rect x="3" y="24.5" width="26" height="4" rx="1.2" fill="${C[1]}" stroke="${C[2]}" stroke-width="1.2"/><circle cx="16" cy="4" r="2" fill="${C[0]}" stroke="${C[2]}" stroke-width="1"/><circle cx="2" cy="9" r="1.6" fill="${C[0]}" stroke="${C[2]}" stroke-width="1"/><circle cx="30" cy="9" r="1.6" fill="${C[0]}" stroke="${C[2]}" stroke-width="1"/><circle cx="16" cy="19.5" r="2.1" fill="${C[3]}"/></svg>`;
+};
+const rkNo=n=>LANG==='en'?'#'+n:n+'位';
+function debtPanel(){
+  if(!debtOn())return '';
+  const m={};
+  S.games.forEach(g=>g.res.forEach((r,i)=>{if(!r.debt||r.paid)return;const o=m[r.id]=m[r.id]||{id:r.id,name:r.name,color:r.color,sum:0,items:[]};o.sum=r2(o.sum+r.debt);o.items.push({g,i,r})}));
+  const arr=Object.values(m).sort((a,b)=>b.sum-a.sum),tot=r2(arr.reduce((a,b)=>a+b.sum,0));
+  const rows=arr.map(o=>{const p=pl(o.id);return `<div class="px-4 py-3 border-t border-slate-100"><div class="flex items-center gap-3">${av(o.name,o.color,p&&p.photo,44,p?o.id:'')}<b class="truncate text-lg">${esc(o.name)}</b><b class="ml-auto text-xl text-red-500 shrink-0">${money(-o.sum)}</b></div><div class="mt-2 space-y-1.5">${o.items.sort((a,b)=>b.g.date.localeCompare(a.g.date)).map(x=>`<div class="flex items-center justify-between text-xs text-slate-500"><span>${x.g.date}${x.g.vname?' · '+esc(x.g.vname):''}</span><span class="flex items-center gap-2"><b class="text-slate-700">${x.r.debt.toLocaleString()}</b><button onclick="payDebt('${x.g.id}',${x.i})" class="debt-pill">${L('標記已還','Mark paid','返済済にする')}</button></span></div>`).join('')}</div><button onclick="payAll('${o.id}')" class="gbtn mt-3 w-full h-10 text-sm active:scale-95 transition">${L('全部還清','Settle all','全額返済')}</button></div>`}).join('');
+  return `<div data-tour="debtList" class="mt-8"><div class="text-center mb-3">${banner(L('欠款清單','Debts','ツケ一覧'))}</div><div class="panel overflow-hidden"><div class="px-4 py-3 flex items-center justify-between"><span class="text-sm text-slate-500">${L('未還款總額','Outstanding total','未返済の合計')}</span><b class="text-2xl ${tot?'text-red-500':'text-emerald-600'}">${tot?money(-tot):L('✓ 無欠款','✓ All clear','✓ なし')}</b></div>${rows}</div></div>`;
+}
+function v4(){
+  if(!S.players.length||!S.games.length)return empty;
+  const ys=[...new Set(S.games.map(g=>g.date.slice(0,4)))].sort().reverse();
+  if(rankY!=='all'&&!ys.includes(rankY))rankY='all';
+  const y=rankY==='all'?'':rankY,rl=rankList(y),gn=S.games.filter(g=>!y||g.date.startsWith(y)).length;
+  const chip=(v,t)=>`<button ${rankY===v?'data-sel':''} onclick="rankY='${v}';render()" class="h-11 px-5 text-sm font-bold shrink-0 ${BTN} ${rankY===v?'bg-indigo-600 text-white shadow':'bg-white text-slate-600 border border-slate-200'}">${t}</button>`;
+  const rows=rl.map((s,ix)=>{
+    const p=s.p,first=s.rank===1,top=s.rank<=3;
+    return `<div ${first?'data-tour="rk"':''} style="--i:${ix}" class="rk2 ${top?'top g'+s.rank:''} ${first?'first':''}"><div class="rkc">${s.rank<=3?`<span class="rk-ic">${rkIcon(s.rank)}</span>`:''}<b class="rk-n">${s.rank}</b>${mvInline(s.mv)}</div>${av(p.name,p.color,p.photo,first?80:56,p.id)}<div class="min-w-0 flex-1"><b class="block truncate ${first?'text-2xl':'text-xl'}">${esc(p.name)}</b><span class="block text-[15px] font-bold text-slate-600 whitespace-nowrap leading-snug">${L(`${s.n} 場`,`${s.n} games`,`${s.n}局`)}</span><span class="block text-[15px] font-bold text-slate-600 whitespace-nowrap leading-snug">${L(`勝${s.w}／負${s.l}`,`W${s.w} / L${s.l}`,`勝${s.w}／負${s.l}`)}</span></div><div class="text-right shrink-0"><b class="cu block text-2xl ${cls(s.sum)}">${money(s.sum)}</b><span class="inline-block mt-1 px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-600 text-sm font-bold">${L('勝率','Win rate','勝率')} ${rateOf(s)}%</span></div></div>`;
+  }).join('');
+  return pageHead(L('排行榜','Ranking','ランキング'),y?L(`${y} 年排行`,`${y} Ranking`,`${y}年ランキング`):L('歷年累積','All-time','通算'))+`<div data-hs="rank" class="relative flex gap-2 overflow-x-auto pb-3 -mx-3 px-3">${chip('all',L('歷年累積','All-time','通算'))}${ys.map(v=>chip(v,v+L(' 年','','年'))).join('')}</div>
+  <div class="text-sm text-slate-400 mb-3 px-1 leading-relaxed">${L(`共 ${gn} 場　※箭頭為與上一場前的名次比較`,`${gn} games · arrows compare with the rank before the latest game`,`全${gn}局　※矢印は直前の対局前との順位比較`)}</div>
+  ${rl.length?rows:`<div class="panel p-6 text-center text-slate-400">${L('此年度無資料','No data for this year','この年のデータなし')}</div>`}${debtPanel()}`;
+}
+
+/* 設定：人員與場所 */
+function setView(){
+  const prow=S.players.map(p=>`<div data-tour="pl-card" class="${CARD} p-3 mb-2"><div class="flex items-center gap-3 mb-3">${av(p.name,p.color,p.photo,60)}<label class="flex-1 h-12 rounded-xl bg-indigo-50 text-indigo-700 font-semibold flex items-center justify-center ${BTN}">📷 ${p.photo?'更換照片':'選擇照片'}<input type="file" accept="image/*" class="hidden" onchange="setPhoto('${p.id}',this)"></label>${p.photo?`<button onclick="rmPhoto('${p.id}')" class="h-12 px-4 rounded-xl bg-slate-100 text-slate-500 font-semibold ${BTN}">移除</button>`:''}</div><div class="flex gap-2 mb-2"><input value="${esc(p.name)}" maxlength="8" oninput="rn('${p.id}',this.value)" class="flex-1 min-w-0 h-12 rounded-xl border-2 border-slate-200 px-3 text-lg font-medium"><button onclick="delP('${p.id}')" class="h-12 px-4 rounded-xl bg-red-50 text-red-500 font-semibold ${BTN}">刪除</button></div><div class="flex flex-wrap gap-2">${COLORS.map(c=>`<button onclick="setC('${p.id}','${c}')" class="w-10 h-10 rounded-full active:scale-90 ${p.color===c?'ring-4 ring-offset-1 ring-slate-400':''}" style="background:${c}"></button>`).join('')}<label class="w-10 h-10 rounded-full relative flex items-center justify-center text-lg border-2 border-dashed border-slate-300 overflow-hidden ${COLORS.includes(p.color)?'bg-white':'ring-4 ring-offset-1 ring-slate-400'}" style="${COLORS.includes(p.color)?'':'background:'+p.color}">${COLORS.includes(p.color)?'🎨':''}<input type="color" value="${p.color}" onchange="setC('${p.id}',this.value)" class="absolute inset-0 w-full h-full opacity-0"></label></div><div class="text-xs text-slate-400 mt-2">最後的 🎨 可自訂任意顏色</div></div>`).join('');
+  const vrow=S.venues.map(x=>`<div class="${CARD} p-3 mb-2 flex gap-2"><input value="${esc(x.name)}" maxlength="12" oninput="rv('${x.id}',this.value)" class="flex-1 min-w-0 h-12 rounded-xl border-2 border-slate-200 px-3 text-lg font-medium"><button onclick="delV('${x.id}')" class="h-12 px-4 rounded-xl bg-red-50 text-red-500 font-semibold ${BTN}">刪除</button></div>`).join('');
+  const add=f=>`<button onclick="${f}" class="w-full h-14 rounded-2xl bg-white border-2 border-dashed border-indigo-400 text-indigo-600 font-bold ${BTN}">`;
+  return `<div id="sc" class="fixed inset-0 z-50 bg-slate-100 overflow-y-auto" style="padding-bottom:env(safe-area-inset-bottom)"><div class="max-w-md mx-auto px-3 pb-16"><div class="sticky top-0 z-10 bg-slate-100 flex items-center justify-between pb-3 -mx-3 px-3 shadow-sm" style="padding-top:calc(env(safe-area-inset-top) + 12px)"><b class="text-lg">玩家與場所</b><button onclick="closeSet()" class="h-12 px-6 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold ${BTN}">完成</button></div>
+  <b class="block mb-2 mt-3">👥 人員（${S.players.length}）</b>${prow}${add('addP()')}＋ 新增人員</button>
+  <b id="venueSec" class="block mt-8 mb-2" style="scroll-margin-top:calc(env(safe-area-inset-top) + 90px)">📍 對弈場所（${S.venues.length}）</b>${vrow}${add('addV()')}＋ 新增場所</button></div></div>`;
+}
+function openSet(sec){
+  const o=$('sc'),t=o?o.scrollTop:0;
+  mset(setView());tr($('modal'));document.body.style.overflow='hidden';
+  if(sec==='venue')$('venueSec').scrollIntoView();else $('sc').scrollTop=t;
+}
+const closeSet=()=>{$('modal').innerHTML='';document.body.style.overflow='';render()};
+function addP(){const n=S.players.length;S.players.push({id:uid(),name:L('玩家','Player ','プレイヤー')+(n+1),color:COLORS[n%COLORS.length]});save();openSet();const s=$('sc');s.scrollTop=s.scrollHeight}
+function sync(id){const p=pl(id);S.games.forEach(g=>g.res.forEach(r=>{if(r.id===id){r.name=p.name;r.color=p.color}}));save()}
+function rn(id,v){pl(id).name=v.trim()||L('未命名','Unnamed','名称未設定');sync(id)}
+function setC(id,c){pl(id).color=c;sync(id);openSet()}
+function delP(id){
+  if(!confirm('確定刪除此人員？\n（過往對弈紀錄仍會保留，但不再列入勝率、圖表與排行）'))return;
+  S.players=S.players.filter(p=>p.id!==id);D.sel=D.sel.filter(x=>x!==id);save();openSet();
+}
+function addV(){S.venues.push({id:uid(),name:L('場所','Venue ','場所')+(S.venues.length+1)});save();openSet();const s=$('sc');s.scrollTop=s.scrollHeight}
+function rv(id,v){const x=S.venues.find(a=>a.id===id);x.name=v.trim()||L('未命名','Unnamed','名称未設定');S.games.forEach(g=>{if(g.vid===id)g.vname=x.name});save()}
+function delV(id){
+  if(!confirm('確定刪除此場所？\n（過往紀錄仍會保留場所名稱）'))return;
+  S.venues=S.venues.filter(x=>x.id!==id);if(D.vid===id)D.vid='';save();openSet();
+}
+
+/* 數字滾動 */
+let lastAK='';
+function countUp(root){
+  if(window.matchMedia&&matchMedia('(prefers-reduced-motion:reduce)').matches)return;
+  root.querySelectorAll('.cu').forEach(el=>{
+    const t=el.textContent,m=t.match(/[\d,]+(\.\d+)?/);if(!m)return;
+    const end=parseFloat(m[0].replace(/,/g,'')),dec=m[1]?m[1].length-1:0;if(!end)return;
+    const a=t.slice(0,m.index),b=t.slice(m.index+m[0].length),t0=performance.now(),D=800;
+    const f=n=>{const k=Math.min(1,(n-t0)/D),e=1-Math.pow(1-k,3);
+      el.textContent=k>=1?t:a+(end*e).toLocaleString(undefined,{minimumFractionDigits:dec,maximumFractionDigits:dec})+b;
+      if(k<1)requestAnimationFrame(f)};
+    requestAnimationFrame(f);
+  });
+}
+/* 主繪製 */
+function render(){
+  const keep={};document.querySelectorAll('[data-hs]').forEach(e=>keep[e.dataset.hs]=e.scrollLeft);
+  const ak=tab+'|'+(tab===3?chartP+'|'+chartY:'')+(tab===4?'|'+rankY:'');const fresh=ak!==lastAK;lastAK=ak;
+  $('v').classList.toggle('anim',fresh);$('nav').classList.toggle('anim',fresh);
+  $('hdr').innerHTML=hdrHTML();
+  $('v').innerHTML=[v0,v1,v2,v3,v4][tab]();
+  $('nav').innerHTML=TABS.map((t,i)=>`<button onclick="tab=${i};render();scrollTo(0,0)" class="h-[78px] flex flex-col items-center justify-center gap-1 text-[15px] ${i===tab?'text-indigo-700 font-extrabold nav-on':'text-slate-500 font-semibold'} ${BTN}"><span class="flex items-center justify-center px-5 py-1.5 rounded-2xl transition ${i===tab?'bg-indigo-100':''}">${t[0]}</span>${t[1]}</button>`).join('');
+  tr($('hdr'));tr($('v'));tr($('nav'));
+  if(tab===1)calc();
+  document.querySelectorAll('[data-hs]').forEach(e=>{const k=e.dataset.hs;if(k in keep)e.scrollLeft=keep[k];else{const s=e.querySelector('[data-sel]');if(s)e.scrollLeft=s.offsetLeft-(e.clientWidth-s.offsetWidth)/2}});
+  if(tab===3)dragInit($('chartChips'));
+  if(fresh)countUp($('v'));
+}
+/* ===== 左右滑動切換分頁 ===== */
+function goTab(n,dir){
+  if(n<0||n>4||n===tab)return;
+  tab=n;render();scrollTo(0,0);
+  const v=$('v');v.classList.remove('sw-l','sw-r');void v.offsetWidth;v.classList.add(dir>0?'sw-l':'sw-r');
+}
+(()=>{
+  let sx=0,sy=0,st=0,ok=false;
+  const blocked=t=>!t||!t.closest||t.closest('[data-hs],.overflow-x-auto,[data-pid],input,select,textarea,label');
+  document.addEventListener('touchstart',e=>{
+    if(e.touches.length!==1||$('modal').innerHTML||$('tour').innerHTML||$('lb').innerHTML){ok=false;return}
+    ok=!blocked(e.target);sx=e.touches[0].clientX;sy=e.touches[0].clientY;st=Date.now();
+  },{passive:true});
+  document.addEventListener('touchend',e=>{
+    if(!ok)return;ok=false;
+    const t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;
+    if(Date.now()-dragEnd<400||Date.now()-st>700)return;
+    if(Math.abs(dx)>70&&Math.abs(dx)>Math.abs(dy)*1.7)goTab(tab+(dx<0?1:-1),dx<0?1:-1);
+  },{passive:true});
+})();
+render();
+</script>
+<script>if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js'))</script>
+</body>
+</html>
